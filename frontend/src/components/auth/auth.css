@@ -1,0 +1,186 @@
+/* home.css */
+
+/* General reset for padding and margin */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Ensures padding and border are included in width/height calculations */
+}
+
+html, body {
+    height: 100%;
+    width: 100%; /* Ensure the page uses the full width of the screen */
+    font-family: 'Arial', sans-serif;
+}
+
+/* Main container */
+.home-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Ensures the container spans at least the full height of the screen */
+    width: 100%; /* Ensures the container spans the full width of the screen */
+    background-color: #f9f9f9; /* Light background color for a clean, soothing look */
+}
+
+/* Header style */
+.header {
+    background-color: #153351;  /* Soft teal color for a calming feel */
+    color: white;
+    padding: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    width: 100%; /* Ensures the header spans the full width */
+    z-index: 1000; /* Keeps the header on top */
+}
+
+/* Logo style */
+.logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Navigation list styling */
+.nav-list {
+    list-style-type: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-list li {
+    margin: 0 15px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #96d6e6;  /* Soft pink color on hover for a gentle touch */
+}
+
+/* Hero section style */
+.hero {
+    width: 100%;
+    height: 73vh; /* Adjust the height of the hero section */
+    background-image: url('../../images/hero.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+.hero-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover; /* Ensures the image maintains aspect ratio */
+    position: absolute; /* Positioning the image inside the hero section */
+    top: 0;
+    left: 0;
+    z-index: -1; /* Ensures the image stays behind any other content */
+}
+
+
+.hero h1 {
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Main content styling */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f4f4; /* Soft background color for content */
+    text-align: center;
+    padding: 40px;
+    width: 100%;
+}
+
+.main-content h1 {
+    font-size: 36px;
+    color: #153351;  /* Matching soft teal for the title */
+}
+
+.main-content p {
+    font-size: 18px;
+    color: #666; /* Slightly darker text for readability */
+}
+
+/* Footer style */
+.footer {
+    background-color: #153351;  /* Darker blue to contrast the lighter header */
+    color: white;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Footer text style */
+.footer-text {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Group members section in footer */
+.footer .group-members {
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.footer .group-members span {
+    display: inline-block;
+    margin: 10px;
+    color: #96d6e6;  /* Light gold/rose gold for group members' names */
+}
+
+/* Button styling */
+button {
+    background-color: #153351; /* Light pink for a delicate, feminine touch */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #96d6e6;  /* Slightly darker pink on hover */
+}
+
+/* Success and Error messages */
+/* Success and Error messages with higher specificity */
+.home-container .success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.2em;
+  }
+  
+  .home-container .error-message {
+    color: red;
+    font-weight: bold;
+    margin-top: 20px;
+    font-size: 1.2em;
+  }
+  
+  

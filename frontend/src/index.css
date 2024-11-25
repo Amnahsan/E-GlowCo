@@ -1,0 +1,97 @@
+/* General Auth Page Styles */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #0a2540;
+  color: white;
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.auth-header {
+  background-color: #0b2c4d;
+  padding: 20px;
+  text-align: center;
+}
+
+.auth-header h1 {
+  font-size: 2.5rem;
+}
+
+.auth-header p {
+  font-size: 1rem;
+}
+
+.auth-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #0a2540;
+  padding: 20px;
+}
+
+.auth-main h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  margin-top: 20px;
+}
+
+label {
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+input,
+select {
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+button {
+  background-color: #2d71b0;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #195b88;
+}
+
+.auth-footer {
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  color: #ffcc00;
+  text-decoration: none;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
+}
+
+footer {
+  background-color: #0b2c4d;
+  padding: 10px;
+  text-align: center;
+}

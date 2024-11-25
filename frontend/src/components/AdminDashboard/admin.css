@@ -1,0 +1,214 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+}
+
+/* Admin Dashboard Container */
+.admin-dashboard-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100%;
+}
+
+/* Admin Header */
+.admin-header {
+    background-color: #153351;
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+}
+
+.admin-header .logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Admin Navigation */
+.admin-nav-list {
+    list-style-type: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-nav-list li {
+    margin: 0 15px;
+}
+
+.admin-nav-link {
+    text-decoration: none;
+    color: white;
+    font-size: 18px;
+    transition: color 0.3s ease;
+}
+
+.admin-nav-link:hover {
+    color: #96d6e6;
+}
+
+/* Admin Main Content (Welcome Page) */
+.admin-main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    background-color: #f4f4f4;
+    text-align: center;
+    width: 100%;
+}
+
+.admin-main-content h1 {
+    font-size: 36px;
+    color: #153351;
+}
+
+.admin-main-content p {
+    font-size: 20px;
+    color: #153351;
+}
+
+/* Admin Footer */
+.admin-footer {
+    background-color: #153351;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.admin-footer p {
+    margin: 0;
+    font-size: 14px;
+}
+
+.group-members {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+.group-members span {
+    margin-right: 15px;
+    color: #96d6e6;
+}
+
+/* Buttons */
+button {
+    background-color: #153351;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #96d6e6;
+}
+
+/* Admin Main Content (Add Product Page) */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 40px;
+    background-color: #f4f4f4;
+    text-align: left;
+    width: 100%;
+}
+
+.main-content h1 {
+    font-size: 36px;
+    color: #153351;
+    margin-bottom: 20px;
+}
+
+form div {
+    margin-bottom: 20px;
+}
+
+label {
+    font-size: 18px;
+    color: #153351;
+    display: block;
+    margin-bottom: 8px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+input[type="file"] {
+    padding: 0;
+}
+
+button {
+    background-color: #153351;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #96d6e6;
+}
+
+/* Success and Error Messages */
+.success-message {
+    color: green;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.error-message {
+    color: red;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .admin-nav-list {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .admin-nav-list li {
+        margin: 10px 0;
+    }
+
+    .main-content {
+        padding: 20px;
+    }
+}
