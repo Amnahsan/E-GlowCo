@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -7,47 +7,72 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import ProductList from './components/ProductList';
-import ProductFilter from './components/ProductFilter';
-import ProductForm from './components/ProductForm';
 import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
-import { addProduct, updateProduct } from '../../api/productService';
+import AddDiscountForm from './components/AddDiscountForm';
+import { fetchDiscounts, addDiscount, updateDiscount, deleteDiscount } from '../../api/discountService';
+import DiscountList from './components/DiscountList';
 
-function ProductsPage() {
+function DiscountPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [openForm, setOpenForm] = useState(false);
-  const [refreshList, setRefreshList] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [openForm, setOpenForm] = useState(false);
+  const [discounts, setDiscounts] = useState([]);
+  const [editDiscount, setEditDiscount] = useState(null);
+
+  useEffect(() => {
+    loadDiscounts();
+  }, []);
+
+  const loadDiscounts = async () => {
+    try {
+      const data = await fetchDiscounts();
+      setDiscounts(data);
+    } catch (error) {
+      console.error('Error loading discounts:', error);
+    }
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleOpenForm = () => setOpenForm(true);
-  const handleCloseForm = () => {
-    setOpenForm(false);
-    setEditProduct(null);
-  };
-
-  const handleEditProduct = (product) => {
-    setEditProduct(product);
+  const handleOpenForm = () => {
+    setEditDiscount(null);
     setOpenForm(true);
   };
 
-  const handleSaveProduct = async (productData) => {
+  const handleCloseForm = () => {
+    setOpenForm(false);
+    setEditDiscount(null);
+  };
+
+  const handleEditDiscount = (discount) => {
+    setEditDiscount(discount);
+    setOpenForm(true);
+  };
+
+  const handleSaveDiscount = async (discountData) => {
     try {
-      if (editProduct) {
-        await updateProduct(editProduct._id, productData);
+      if (editDiscount) {
+        await updateDiscount(editDiscount._id, discountData);
       } else {
-        await addProduct(productData);
+        await addDiscount(discountData);
       }
-      setRefreshList(prev => !prev);
+      loadDiscounts();
       handleCloseForm();
     } catch (error) {
-      console.error('Error saving product:', error);
+      console.error('Error saving discount:', error);
+    }
+  };
+
+  const handleDeleteDiscount = async (discountId) => {
+    try {
+      await deleteDiscount(discountId);
+      loadDiscounts();
+    } catch (error) {
+      console.error('Error deleting discount:', error);
     }
   };
 
@@ -70,7 +95,8 @@ function ProductsPage() {
           display: 'flex',
           flexDirection: 'column',
           height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
-          bgcolor: 'background.default'
+          bgcolor: 'background.default',
+          overflow: 'hidden'
         }}
       >
         {/* Header */}
@@ -88,7 +114,7 @@ function ProductsPage() {
               component="h1"
               sx={{ fontWeight: 500 }}
             >
-              Products
+              Discounts
             </Typography>
             <Button
               variant="contained"
@@ -97,35 +123,34 @@ function ProductsPage() {
               onClick={handleOpenForm}
               fullWidth={isMobile}
             >
-              Add Product
+              Create Discount
             </Button>
           </Box>
-
-          <ProductFilter />
         </Box>
         
-        {/* Product List */}
+        {/* Discounts List */}
         <Box sx={{ 
-          px:2,
+          px: 2,
           flexGrow: 1,
           overflow: 'auto',
           bgcolor: 'background.paper'
         }}>
-          <ProductList 
-            refreshTrigger={refreshList} 
-            onEditProduct={handleEditProduct}
+          <DiscountList 
+            discounts={discounts}
+            onEditDiscount={handleEditDiscount}
+            onDeleteDiscount={handleDeleteDiscount}
           />
         </Box>
 
-        <ProductForm
+        <AddDiscountForm
           open={openForm}
           handleClose={handleCloseForm}
-          onSave={handleSaveProduct}
-          editProduct={editProduct}
+          onSave={handleSaveDiscount}
+          editDiscount={editDiscount}
         />
       </Box>
     </Box>
   );
 }
 
-export default ProductsPage; 
+export default DiscountPage;

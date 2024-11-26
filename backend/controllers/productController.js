@@ -1,4 +1,5 @@
-const Product = require('../models/productmodel');
+const Product = require('../models/productModel');
+const Discount = require('../models/Discount');
 
 // Get all products
 const getProducts = async (req, res) => {
@@ -83,9 +84,66 @@ const deleteProduct = async (req, res) => {
   }
 };
 
+const applyDiscount = async (req, res) => {
+  try {
+    const { id: productId } = req.params;
+    const { discountId } = req.body;
+
+    // Find the discount to get the percentage
+    const discount = await Discount.findById(discountId);
+    if (!discount) {
+      return res.status(404).json({ message: 'Discount not found' });
+    }
+
+    // Update the product
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        $addToSet: { discounts: { discount: discountId, appliedAt: new Date() } },
+        currentDiscount: discount.discountPercentage
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+const removeDiscount = async (req, res) => {
+  try {
+    const { id: productId, discountId } = req.params;
+
+    // Update the product
+    const updatedProduct = await Product.findByIdAndUpdate(
+      productId,
+      {
+        $pull: { discounts: { discount: discountId } },
+        $set: { currentDiscount: 0 } // Reset current discount
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedProduct) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(updatedProduct);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
 module.exports = { 
   getProducts, 
   createProduct, 
   updateProduct, 
-  deleteProduct 
+  deleteProduct, 
+  applyDiscount, 
+  removeDiscount 
 };

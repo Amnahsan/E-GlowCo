@@ -7,6 +7,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/userroute');  // Correct import path for authRoutes
 const productRoute = require('./routes/productRoutes');
 const product = require('./routes/productRoutes');
+const discountRoutes = require('./routes/discountRoutes');
 const app = express();
 
 dotenv.config();
@@ -40,7 +41,7 @@ const authenticateJWT = (req, res, next) => {
 app.use('/api/auth', authRoutes);  // Use the authRoutes for registration and login
 app.use('/api/product', productRoute);  // Use the productRoute for product-related operations, requiring JWT authentication
 app.use('/api/seller/products', product);
-
+app.use('/api/seller/discounts', discountRoutes);
 // Example protected route
 app.get('/api/admin-data', authenticateJWT, (req, res) => {
   if (req.user.role === 'admin') {

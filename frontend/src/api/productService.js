@@ -76,4 +76,31 @@ export const deleteProduct = async (productId) => {
     console.error('Error deleting product:', error);
     throw error;
   }
+};
+
+export const applyDiscount = async (productId, discountId) => {
+  try {
+    const response = await axios.post(
+      `${API_URL}/${productId}/apply-discount`,
+      { discountId },
+      getAuthHeaders()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error applying discount:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const removeDiscount = async (productId, discountId) => {
+  try {
+    const response = await axios.delete(
+      `${API_URL}/${productId}/remove-discount/${discountId}`,
+      getAuthHeaders()
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error removing discount:', error.response?.data || error.message);
+    throw error;
+  }
 }; 

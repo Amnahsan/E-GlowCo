@@ -365,6 +365,8 @@ function ProductForm({ open, handleClose, onSave, editProduct }) {
                         size="small"
                         onClick={() => handleRemoveImage(index)}
                         sx={{
+                          width: '20px',
+                          height: '20px',
                           position: 'absolute',
                           top: -8,
                           right: -8,

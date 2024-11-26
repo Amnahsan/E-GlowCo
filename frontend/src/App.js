@@ -9,6 +9,7 @@ import NotFound from "./components/auth/notfoundpage"; // Ensure this component 
 import ProductManagement from "./components/AdminDashboard/productMng"; // Corrected to ProductManagement.jsx
 import Dashboard from "./components/SellerDashboard/SellerDashboard"; // Import the Seller Dashboard
 import Products from "./components/SellerDashboard/ProductsPage"; // Import the Products component
+import DiscountPage from "./components/SellerDashboard/DiscountPage"; // Import the DiscountPage component
 function App() {
   return (
     <Router>
@@ -32,7 +33,7 @@ function App() {
         <Route path="/seller-dashboard" element={<Dashboard />} />
         
         <Route path="/seller-dashboard/products" element={<Products />} />
-
+        <Route path="/seller-dashboard/discounts" element={<DiscountPage />} />
 
         {/* 404 Not Found Route */}
         <Route path="*" element={<NotFound />} />

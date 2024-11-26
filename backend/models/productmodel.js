@@ -10,6 +10,16 @@ const productSchema = new mongoose.Schema({
   discount: { type: Number, default: 0 },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   images: [String], // Array of image URLs
+  discounts: [{
+    discount: { type: mongoose.Schema.Types.ObjectId, ref: 'Discount' },
+    appliedAt: { type: Date, default: Date.now }
+  }],
+  currentDiscount: { 
+    type: Number, 
+    default: 0,
+    min: 0,
+    max: 100
+  }
 }, {
   timestamps: true,
 });
