@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');  // Import jsonwebtoken
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/userroute');  // Correct import path for authRoutes
-const productRoute = require('./routes/productroute');
+const productRoute = require('./routes/productRoutes');
+const product = require('./routes/productRoutes');
 const app = express();
 
 dotenv.config();
@@ -38,7 +39,7 @@ const authenticateJWT = (req, res, next) => {
 // Define your routes
 app.use('/api/auth', authRoutes);  // Use the authRoutes for registration and login
 app.use('/api/product', productRoute);  // Use the productRoute for product-related operations, requiring JWT authentication
-
+app.use('/api/seller/products', product);
 
 // Example protected route
 app.get('/api/admin-data', authenticateJWT, (req, res) => {
@@ -48,6 +49,8 @@ app.get('/api/admin-data', authenticateJWT, (req, res) => {
     res.status(403).json({ message: 'You do not have permission to access this data.' });
   }
 });
+
+app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {

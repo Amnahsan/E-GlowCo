@@ -7,7 +7,8 @@ import Register from "./components/auth/register";
 //import ProtectedRoute from "./components/auth/protectedRoute"; // Ensure this file handles role-based protection
 import NotFound from "./components/auth/notfoundpage"; // Ensure this component exists
 import ProductManagement from "./components/AdminDashboard/productMng"; // Corrected to ProductManagement.jsx
-
+import Dashboard from "./components/SellerDashboard/SellerDashboard"; // Import the Seller Dashboard
+import Products from "./components/SellerDashboard/ProductsPage"; // Import the Products component
 function App() {
   return (
     <Router>
@@ -26,6 +27,12 @@ function App() {
         {/* Add Product Route */}
         <Route path="/add-product" element={<ProductManagement />} />
         
+
+        {/* Seller Dashboard Route */}
+        <Route path="/seller-dashboard" element={<Dashboard />} />
+        
+        <Route path="/seller-dashboard/products" element={<Products />} />
+
 
         {/* 404 Not Found Route */}
         <Route path="*" element={<NotFound />} />

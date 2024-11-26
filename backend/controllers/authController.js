@@ -6,7 +6,7 @@ const User = require('../models/usermodel');
 const register = async (req, res) => {
   const { name, email, password, role } = req.body;
   console.log("Received registration data:", { name, email, role });
-
+                                                                                                                                                    
   if (!name || !email || !password || !role) {
     console.log("Missing fields in registration data.");
     return res.status(400).json({ message: 'All fields are required.' });
