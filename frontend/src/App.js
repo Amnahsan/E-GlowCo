@@ -1,44 +1,50 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./components/auth/home"; // Ensure this path is correct
-import AdminWelcome from "./components/AdminDashboard/adminwelcome"; // Corrected to AdminWelcome.jsx
+import { ThemeProvider } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { theme } from './themes/theme';
+
+// Pages
+import Home from "./pages/home/HomePage";
+import AdminWelcome from "./components/AdminDashboard/adminwelcome";
 import Login from "./components/auth/login";
 import Register from "./components/auth/register";
-//import ProtectedRoute from "./components/auth/protectedRoute"; // Ensure this file handles role-based protection
-import NotFound from "./components/auth/notfoundpage"; // Ensure this component exists
-import ProductManagement from "./components/AdminDashboard/productMng"; // Corrected to ProductManagement.jsx
-import Dashboard from "./components/SellerDashboard/SellerDashboard"; // Import the Seller Dashboard
-import Products from "./components/SellerDashboard/ProductsPage"; // Import the Products component
-import DiscountPage from "./components/SellerDashboard/DiscountPage"; // Import the DiscountPage component
+import NotFound from "./components/auth/notfoundpage";
+import ProductManagement from "./components/AdminDashboard/productMng";
+import Dashboard from "./components/SellerDashboard/SellerDashboard";
+import Products from "./components/SellerDashboard/ProductsPage";
+import DiscountPage from "./components/SellerDashboard/DiscountPage";
+
+// Global Styles
+import './App.css';
+
 function App() {
   return (
-    <Router>
-      <Routes>
-        {/* Home Route */}
-        <Route path="/" element={<Home />} />
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> {/* Provides consistent baseline styles */}
+      <Router>
+        <div className="app-container">
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
 
-        {/* Public Routes */}
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
+            {/* Admin Routes */}
+            <Route path="/admin-dashboard" element={<AdminWelcome />} />
+            <Route path="/add-product" element={<ProductManagement />} />
 
+            {/* Seller Routes */}
+            <Route path="/seller-dashboard" element={<Dashboard />} />
+            <Route path="/seller-dashboard/products" element={<Products />} />
+            <Route path="/seller-dashboard/discounts" element={<DiscountPage />} />
 
-        <Route path="/admin-dashboard" element={<AdminWelcome />} />
-
-
-        {/* Add Product Route */}
-        <Route path="/add-product" element={<ProductManagement />} />
-        
-
-        {/* Seller Dashboard Route */}
-        <Route path="/seller-dashboard" element={<Dashboard />} />
-        
-        <Route path="/seller-dashboard/products" element={<Products />} />
-        <Route path="/seller-dashboard/discounts" element={<DiscountPage />} />
-
-        {/* 404 Not Found Route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+            {/* 404 Not Found Route */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </div>
+      </Router>
+    </ThemeProvider>
   );
 }
 
