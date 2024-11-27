@@ -47,7 +47,11 @@ function TopBar({ onMobileMenuToggle }) {
   const menuItems = [
     { label: 'Profile', icon: <PersonIcon />, action: () => {} },
     { label: 'Settings', icon: <SettingsIcon />, action: () => {} },
-    { label: 'Logout', icon: <LogoutIcon />, action: () => {}, color: 'text-red-600' }
+    { label: 'Logout', icon: <LogoutIcon />, action: () => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('role');
+      window.location.href = '/';
+    }, color: 'text-red-600' }
   ];
 
   const notifications = [
