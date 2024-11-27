@@ -12,6 +12,8 @@ import SideNav from './components/SideNav';
 import AddDiscountForm from './components/AddDiscountForm';
 import { fetchDiscounts, addDiscount, updateDiscount, deleteDiscount } from '../../api/discountService';
 import DiscountList from './components/DiscountList';
+import AddButton from './components/AddButton';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 function DiscountPage() {
   const theme = useTheme();
@@ -116,15 +118,11 @@ function DiscountPage() {
             >
               Discounts
             </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
+            <AddButton
               onClick={handleOpenForm}
-              fullWidth={isMobile}
-            >
-              Create Discount
-            </Button>
+              label="Create Discount"
+              icon={LocalOfferIcon}
+            />
           </Box>
         </Box>
         

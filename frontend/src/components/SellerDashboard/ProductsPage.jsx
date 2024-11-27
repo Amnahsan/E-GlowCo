@@ -13,6 +13,8 @@ import ProductForm from './components/ProductForm';
 import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
 import { addProduct, updateProduct } from '../../api/productService';
+import AddButton from './components/AddButton';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 
 function ProductsPage() {
   const theme = useTheme();
@@ -90,15 +92,10 @@ function ProductsPage() {
             >
               Products
             </Typography>
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
+            <AddButton
               onClick={handleOpenForm}
-              fullWidth={isMobile}
-            >
-              Add Product
-            </Button>
+              label="Add New Product"
+            />
           </Box>
 
           <ProductFilter />

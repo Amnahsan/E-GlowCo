@@ -1,25 +1,81 @@
-import React from 'react';
-import { Box, Toolbar, Paper, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, ThemeProvider, CssBaseline } from '@mui/material';
+import { motion } from 'framer-motion';
 import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
 import MetricsOverview from './components/MetricsOverview';
 import ActionButtons from './components/ActionButtons';
+import { sellerTheme } from '../../themes/sellerTheme';
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { 
+      duration: 0.5,
+      when: "beforeChildren",
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { 
+    y: 0, 
+    opacity: 1,
+    transition: { duration: 0.5 }
+  }
+};
 
 function Dashboard() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
   return (
-    <Box sx={{ display: 'flex', bgcolor: 'background.default', minHeight: '100vh' }}>
-      <TopBar />
-      <SideNav />
-      <Box component="main" sx={{ flexGrow: 1, p: 4, bgcolor: 'background.paper', borderRadius: 2, mt: 8 }}>
-        <Toolbar />
-        <MetricsOverview />
-        <ActionButtons />
-        <Paper sx={{ p: 3, mt: 2, borderRadius: 2 }}>
-          <Typography variant="h5" gutterBottom>Details</Typography>
-          {/* Add detailed views here */}
-        </Paper>
+    <ThemeProvider theme={sellerTheme}>
+      <CssBaseline />
+      <Box className="min-h-screen bg-gray-50">
+        <TopBar onMobileMenuToggle={handleDrawerToggle} />
+        <SideNav 
+          mobileOpen={mobileOpen} 
+          onMobileClose={handleDrawerToggle}
+        />
+        
+        <motion.main
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="flex-1 lg:ml-64 p-6"
+        >
+          <Box className="max-w-7xl mx-auto">
+            <motion.div
+              variants={itemVariants}
+              className="bg-white rounded-lg shadow-sm p-6 mb-6"
+            >
+              <MetricsOverview />
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"
+            >
+              <ActionButtons />
+            </motion.div>
+
+            <motion.div
+              variants={itemVariants}
+              className="bg-white rounded-lg shadow-sm p-6"
+            >
+              {/* Add your dashboard content here */}
+            </motion.div>
+          </Box>
+        </motion.main>
       </Box>
-    </Box>
+    </ThemeProvider>
   );
 }
 

@@ -7,20 +7,48 @@ import {
   TableHead, 
   TableRow, 
   Paper, 
-  Button,
   Box,
   Card,
-  CardContent,
   Typography,
   useTheme,
   useMediaQuery,
-  IconButton
+  IconButton,
+  Chip,
+  Tooltip,
+  Badge
 } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import { fetchProducts, deleteProduct, applyDiscount, removeDiscount } from '../../../api/productService';
 import ApplyDiscountForm from './ApplyDiscountForm';
+
+const tableVariants = {
+  hidden: { opacity: 0 },
+  visible: { 
+    opacity: 1,
+    transition: { 
+      duration: 0.3,
+      when: "beforeChildren",
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const rowVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { duration: 0.3 }
+  },
+  exit: { 
+    opacity: 0, 
+    x: -100,
+    transition: { duration: 0.2 }
+  }
+};
 
 function ProductList({ refreshTrigger, onEditProduct }) {
   const [products, setProducts] = useState([]);
@@ -30,23 +58,22 @@ function ProductList({ refreshTrigger, onEditProduct }) {
   const [openDiscountForm, setOpenDiscountForm] = useState(false);
 
   useEffect(() => {
-    const loadProducts = async () => {
-      try {
-        const data = await fetchProducts();
-        setProducts(data);
-      } catch (error) {
-        console.error('Failed to load products:', error);
-      }
-    };
-
     loadProducts();
   }, [refreshTrigger]);
+
+  const loadProducts = async () => {
+    try {
+      const data = await fetchProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to load products:', error);
+    }
+  };
 
   const handleDelete = async (productId) => {
     try {
       await deleteProduct(productId);
-      const updatedProducts = await fetchProducts();
-      setProducts(updatedProducts);
+      await loadProducts();
     } catch (error) {
       console.error('Failed to delete product:', error);
     }
@@ -56,8 +83,9 @@ function ProductList({ refreshTrigger, onEditProduct }) {
     try {
       await applyDiscount(productId, discountId);
       // Refresh the product list
-      const updatedProducts = await fetchProducts();
-      setProducts(updatedProducts);
+      await loadProducts();
+      setOpenDiscountForm(false);
+      setSelectedProduct(null);
     } catch (error) {
       console.error('Failed to apply discount:', error);
     }
@@ -65,12 +93,9 @@ function ProductList({ refreshTrigger, onEditProduct }) {
 
   const handleRemoveDiscount = async (productId, discountId) => {
     try {
-      console.log('Removing discount:', productId, discountId); // Debug log
       await removeDiscount(productId, discountId);
       // Refresh the product list
-      const updatedProducts = await fetchProducts();
-      setProducts(updatedProducts);
-      // Close the discount form after successful removal
+      await loadProducts();
       setOpenDiscountForm(false);
       setSelectedProduct(null);
     } catch (error) {
@@ -78,86 +103,194 @@ function ProductList({ refreshTrigger, onEditProduct }) {
     }
   };
 
-  // Mobile view card layout
+  const ProductCard = ({ product }) => (
+    <motion.div
+      variants={rowVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      layout
+    >
+      <Card className="mb-4 hover:shadow-md transition-shadow duration-300">
+        <Box className="p-4">
+          <Box className="flex items-start gap-4">
+            {product.images?.[0] && (
+              <Box
+                component="img"
+                src={product.images[0]}
+                alt={product.name}
+                className="w-20 h-20 rounded-lg object-cover"
+              />
+            )}
+            <Box className="flex-grow">
+              <Box className="flex justify-between items-start">
+                <Box>
+                  <Typography variant="h6" className="font-semibold text-gray-900">
+                    {product.name}
+                  </Typography>
+                  <Typography variant="body2" className="text-gray-600 mb-2">
+                    {product.category}
+                  </Typography>
+                </Box>
+                <Chip
+                  label={product.status}
+                  size="small"
+                  color={product.status === 'Active' ? 'success' : 'error'}
+                  className="ml-2"
+                />
+              </Box>
+              
+              <Box className="grid grid-cols-3 gap-2 mb-4">
+                <Box>
+                  <Typography variant="caption" className="text-gray-500">
+                    Price
+                  </Typography>
+                  <Typography variant="body1" className="font-medium">
+                    ${product.price}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" className="text-gray-500">
+                    Stock
+                  </Typography>
+                  <Typography variant="body1" className="font-medium">
+                    {product.stock}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="caption" className="text-gray-500">
+                    Discount
+                  </Typography>
+                  <Typography variant="body1" className="font-medium">
+                    {product.discount}%
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+
+          <Box className="flex justify-end gap-2 mt-2">
+            <Tooltip title="Edit Product">
+              <IconButton 
+                onClick={() => onEditProduct(product)}
+                className="bg-blue-50 hover:bg-blue-100 text-blue-600 w-8 h-8"
+                size="small"
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Delete Product">
+              <IconButton 
+                onClick={() => handleDelete(product._id)}
+                className="bg-red-50 hover:bg-red-100 text-red-600 w-8 h-8"
+                size="small"
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Manage Discounts">
+              <IconButton 
+                onClick={() => {
+                  setSelectedProduct(product);
+                  setOpenDiscountForm(true);
+                }}
+                className="bg-purple-50 hover:bg-purple-100 text-purple-600 w-8 h-8"
+                size="small"
+              >
+                <LocalOfferIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        </Box>
+      </Card>
+    </motion.div>
+  );
+
+  // Desktop table row component
+  const ProductRow = ({ product }) => (
+    <motion.tr
+      variants={rowVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      className="hover:bg-gray-50"
+    >
+      <TableCell>
+        <Box className="flex items-center gap-3">
+          {product.images?.[0] && (
+            <Box
+              component="img"
+              src={product.images[0]}
+              alt={product.name}
+              className="w-12 h-12 rounded-lg object-cover"
+            />
+          )}
+          <Typography className="font-medium">{product.name}</Typography>
+        </Box>
+      </TableCell>
+      <TableCell>{product.category}</TableCell>
+      <TableCell>${product.price}</TableCell>
+      <TableCell>{product.stock}</TableCell>
+      <TableCell>
+        <Badge 
+          badgeContent={`${product.discount}%`} 
+          color="secondary"
+          className="ml-2"
+        />
+      </TableCell>
+      <TableCell>
+        <Chip
+          label={product.status}
+          size="small"
+          color={product.status === 'Active' ? 'success' : 'error'}
+        />
+      </TableCell>
+      <TableCell>
+        <Box className="flex justify-center gap-1">
+          <Tooltip title="Edit Product">
+            <IconButton 
+              onClick={() => onEditProduct(product)}
+              className="bg-blue-50 hover:bg-blue-100 text-blue-600 w-8 h-8"
+              size="small"
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Delete Product">
+            <IconButton 
+              onClick={() => handleDelete(product._id)}
+              className="bg-red-50 hover:bg-red-100 text-red-600 w-8 h-8"
+              size="small"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Manage Discounts">
+            <IconButton 
+              onClick={() => {
+                setSelectedProduct(product);
+                setOpenDiscountForm(true);
+              }}
+              className="bg-purple-50 hover:bg-purple-100 text-purple-600 w-8 h-8 "
+              size="small"
+            >
+              <LocalOfferIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </TableCell>
+    </motion.tr>
+  );
+
   if (isMobile) {
     return (
       <>
-        <Box sx={{ mt: 2 }}>
-          {products.map((product) => (
-            <Card key={product._id} sx={{ mb: 2, borderRadius: 2 }}>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
-                  {product.images?.[0] && (
-                    <Box
-                      component="img"
-                      src={product.images[0]}
-                      alt={product.name}
-                      sx={{
-                        width: 60,
-                        height: 60,
-                        borderRadius: 1,
-                        objectFit: 'cover',
-                        mr: 2
-                      }}
-                    />
-                  )}
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Typography variant="subtitle1" component="div" sx={{ fontWeight: 'bold' }}>
-                      {product.name}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {product.category}
-                    </Typography>
-                  </Box>
-                </Box>
-                
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mb: 2 }}>
-                  <Typography variant="body2">
-                    Price: ${product.price}
-                  </Typography>
-                  <Typography variant="body2">
-                    Stock: {product.stock}
-                  </Typography>
-                  <Typography variant="body2">
-                    Discount: {product.discount}%
-                  </Typography>
-                  <Typography variant="body2">
-                    Status: {product.status}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                <IconButton 
-                    size="small" 
-                    onClick={() => onEditProduct(product)}
-                    color="primary"
-                    sx={{ padding: '20px', width: '20px', height: '20px',backgroundColor: '#e3f2fd' }}
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => handleDelete(product._id)}
-                    color="error"
-                    sx={{  padding: '20px', width: '20px', height: '20px' }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton 
-                    size="small" 
-                    onClick={() => {
-                      setSelectedProduct(product);
-                      setOpenDiscountForm(true);
-                    }}
-                    color="secondary"
-                    sx={{ padding: '20px', width: '20px', height: '20px' }}
-                  >
-                    <LocalOfferIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              </CardContent>
-            </Card>
-          ))}
+        <Box className="p-4">
+          <AnimatePresence>
+            {products.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </AnimatePresence>
         </Box>
 
         <ApplyDiscountForm
@@ -174,101 +307,30 @@ function ProductList({ refreshTrigger, onEditProduct }) {
     );
   }
 
-  // Desktop/Tablet view table layout
   return (
     <>
       <TableContainer 
         component={Paper} 
-        sx={{ 
-          mt: 3,
-          borderRadius: 2,
-          overflowX: 'auto'
-        }}
+        className="mt-6 rounded-xl shadow-sm"
       >
-        <Table sx={{ minWidth: 650 }}>
+        <Table>
           <TableHead>
-            <TableRow sx={{ backgroundColor: 'primary.main' }}>
-              <TableCell sx={{ color: 'white' }}>Product</TableCell>
-              <TableCell sx={{ color: 'white' }}>Category</TableCell>
-              <TableCell sx={{ color: 'white' }}>Price</TableCell>
-              <TableCell sx={{ color: 'white' }}>Stock</TableCell>
-              <TableCell sx={{ color: 'white' }}>Discount</TableCell>
-              <TableCell sx={{ color: 'white' }}>Status</TableCell>
-              <TableCell align="center" sx={{ width: '90px', color: 'white' }}>Actions</TableCell>
+            <TableRow className="bg-gray-50">
+              <TableCell className="font-semibold">Product</TableCell>
+              <TableCell className="font-semibold">Category</TableCell>
+              <TableCell className="font-semibold">Price</TableCell>
+              <TableCell className="font-semibold">Stock</TableCell>
+              <TableCell className="font-semibold">Discount</TableCell>
+              <TableCell className="font-semibold">Status</TableCell>
+              <TableCell className="font-semibold text-center">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {products.map((product) => (
-              <TableRow key={product._id}>
-                <TableCell sx={{ width: '30%' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    {product.images?.[0] && (
-                      <Box
-                        component="img"
-                        src={product.images[0]}
-                        alt={product.name}
-                        sx={{
-                          width: 60,
-                          height: 60,
-                          borderRadius: 1,
-                          objectFit: 'cover'
-                        }}
-                      />
-                    )}
-                    <Typography noWrap>{product.name}</Typography>
-                  </Box>
-                </TableCell>
-                <TableCell sx={{ width: '15%' }}>{product.category}</TableCell>
-                <TableCell sx={{ width: '10%' }}>${product.price}</TableCell>
-                <TableCell sx={{ width: '8%' }}>{product.stock}</TableCell>
-                <TableCell sx={{ width: '8%' }}>{product.discount}%</TableCell>
-                <TableCell width="8%" >
-                  <Box
-                    sx={{
-                      backgroundColor: product.status === 'Active' ? 'success.light' : 'error.light',
-                      color: 'white',
-                      py: 0.5,
-                      px: 1,
-                      borderRadius: 1,
-                      display: 'inline-block'
-                    }}
-                  >
-                    {product.status}
-                  </Box>
-                </TableCell>
-                <TableCell width="10%" >
-                  <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                    <IconButton 
-                      size="medium" 
-                      onClick={() => onEditProduct(product)}
-                      color="primary"
-                      sx={{ padding: '20px', width: '20px', height: '20px' }}
-                    >
-                      <EditIcon fontSize="medium" />
-                    </IconButton>
-                    <IconButton 
-                      size="medium" 
-                      onClick={() => handleDelete(product._id)}
-                      color="error"
-                      sx={{ padding: '20px', width: '20px', height: '20px' }}
-                    >
-                      <DeleteIcon fontSize="medium" />
-                    </IconButton>
-                    <IconButton 
-                      size="medium" 
-                      onClick={() => {
-                        setSelectedProduct(product);
-                        setOpenDiscountForm(true);
-                      }}
-                      color="secondary"
-                      sx={{ padding: '20px', width: '20px', height: '20px' }}
-                    >
-                      <LocalOfferIcon fontSize="medium" />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
+            <AnimatePresence>
+              {products.map((product) => (
+                <ProductRow key={product._id} product={product} />
+              ))}
+            </AnimatePresence>
           </TableBody>
         </Table>
       </TableContainer>

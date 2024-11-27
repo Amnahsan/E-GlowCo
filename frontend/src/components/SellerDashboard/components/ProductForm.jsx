@@ -12,25 +12,76 @@ import {
   MenuItem,
   Grid,
   IconButton,
-  FormHelperText,
   Typography,
+  Box,
+  Tooltip,
+  Alert
 } from '@mui/material';
+import { motion, AnimatePresence } from 'framer-motion';
 import CloseIcon from '@mui/icons-material/Close';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CategoryIcon from '@mui/icons-material/Category';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import { uploadToCloudinary } from '../../../api/cloudinaryService';
 
+const formVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { 
+      duration: 0.3,
+      when: "beforeChildren",
+      staggerChildren: 0.1
+    }
+  },
+  exit: { 
+    opacity: 0, 
+    y: 50,
+    transition: { duration: 0.2 }
+  }
+};
+
+const inputVariants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { duration: 0.3 }
+  }
+};
+
+const imageVariants = {
+  hidden: { scale: 0.8, opacity: 0 },
+  visible: { 
+    scale: 1, 
+    opacity: 1,
+    transition: { duration: 0.3 }
+  },
+  exit: { 
+    scale: 0.8, 
+    opacity: 0,
+    transition: { duration: 0.2 }
+  }
+};
+
 function ProductForm({ open, handleClose, onSave, editProduct }) {
-  const [formData, setFormData] = useState({
+  const initialFormState = {
     name: '',
     description: '',
     category: '',
     price: '',
     stock: '',
-    discount: '0',
     status: 'Active',
     images: []
-  });
+  };
+
+  const [formData, setFormData] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const categories = [
     'Face Makeup',
@@ -53,71 +104,55 @@ function ProductForm({ open, handleClose, onSave, editProduct }) {
         category: editProduct.category || '',
         price: editProduct.price || '',
         stock: editProduct.stock || '',
-        discount: editProduct.discount || '0',
         status: editProduct.status || 'Active',
         images: editProduct.images || []
       });
       setErrors({});
+    } else {
+      setFormData(initialFormState);
     }
-  }, [editProduct]);
+  }, [editProduct, open]);
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.name.trim()) {
       newErrors.name = 'Product name is required';
-    } else if (formData.name.length < 3) {
-      newErrors.name = 'Product name must be at least 3 characters';
     }
-
     if (!formData.category) {
       newErrors.category = 'Category is required';
     }
-
     if (!formData.price) {
       newErrors.price = 'Price is required';
     } else if (Number(formData.price) <= 0) {
       newErrors.price = 'Price must be greater than 0';
     }
-
     if (!formData.stock) {
       newErrors.stock = 'Stock is required';
     } else if (!Number.isInteger(Number(formData.stock)) || Number(formData.stock) < 0) {
       newErrors.stock = 'Stock must be a non-negative integer';
     }
-
-    if (Number(formData.discount) < 0 || Number(formData.discount) > 100) {
-      newErrors.discount = 'Discount must be between 0 and 100';
-    }
-
-    if (formData.description && formData.description.length > 500) {
-      newErrors.description = 'Description must not exceed 500 characters';
-    }
-
     if (formData.images.length === 0) {
       newErrors.images = 'At least one product image is required';
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
-  const handleImageChange = async (e) => {
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
+    setUploadError('');
     
-    // Validate file types and sizes
     const validFiles = files.filter(file => {
       const isValidType = ['image/jpeg', 'image/png', 'image/webp'].includes(file.type);
       const isValidSize = file.size <= 5 * 1024 * 1024; // 5MB limit
@@ -125,10 +160,7 @@ function ProductForm({ open, handleClose, onSave, editProduct }) {
     });
 
     if (validFiles.length !== files.length) {
-      setErrors(prev => ({
-        ...prev,
-        images: 'Some files were rejected. Please use JPEG, PNG or WebP images under 5MB.'
-      }));
+      setUploadError('Some files were rejected. Please use JPEG, PNG or WebP images under 5MB.');
       return;
     }
 
@@ -138,255 +170,273 @@ function ProductForm({ open, handleClose, onSave, editProduct }) {
       const uploadPromises = validFiles.map(file => uploadToCloudinary(file));
       const uploadedUrls = await Promise.all(uploadPromises);
       
-      setFormData(prevState => ({
-        ...prevState,
-        images: [...prevState.images, ...uploadedUrls]
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedUrls]
       }));
       setErrors(prev => ({ ...prev, images: '' }));
     } catch (error) {
-      console.error('Error uploading images:', error);
-      setErrors(prev => ({
-        ...prev,
-        images: 'Failed to upload images. Please try again.'
-      }));
+      setUploadError('Failed to upload images. Please try again.');
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleRemoveImage = (indexToRemove) => {
-    setFormData(prevState => ({
-      ...prevState,
-      images: prevState.images.filter((_, index) => index !== indexToRemove)
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, index) => index !== indexToRemove)
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+    if (validateForm()) {
+      onSave({
+        ...formData,
+        price: Number(formData.price),
+        stock: Number(formData.stock)
+      });
+      handleClose();
     }
-
-    const productData = {
-      name: formData.name.trim(),
-      description: formData.description.trim(),
-      category: formData.category,
-      price: Number(formData.price),
-      stock: Number(formData.stock),
-      discount: Number(formData.discount),
-      status: formData.status,
-      images: formData.images
-    };
-
-    onSave(productData);
-    setFormData({
-      name: '',
-      description: '',
-      category: '',
-      price: '',
-      stock: '',
-      discount: '0',
-      status: 'Active',
-      images: []
-    });
-    setErrors({});
-    handleClose();
   };
 
-  const handleCloseWithReset = () => {
-    setFormData({
-      name: '',
-      description: '',
-      category: '',
-      price: '',
-      stock: '',
-      discount: '0',
-      status: 'Active',
-      images: []
-    });
+  const onCloseDialog = () => {
+    setFormData(initialFormState);
     setErrors({});
+    setUploadError('');
     handleClose();
   };
 
   return (
     <Dialog 
       open={open} 
-      onClose={handleCloseWithReset} 
+      onClose={onCloseDialog}
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: {
-          display: 'flex',
-          flexDirection: 'column',
-          m: 2
-        }
+        component: motion.div,
+        variants: formVariants,
+        initial: "hidden",
+        animate: "visible",
+        exit: "exit",
+        className: "rounded-xl"
       }}
     >
-      <DialogTitle>{editProduct ? 'Edit Product' : 'Add New Product'}</DialogTitle>
-      <form onSubmit={handleSubmit} style={{width: '100%'}}>
-        <DialogContent sx={{ overflowY: 'visible' }}>
-          <Grid container spacing={2}>
+      <DialogTitle className="flex justify-between items-center bg-gray-50 border-b">
+        <Typography variant="h6" className="font-semibold">
+          {editProduct ? 'Edit Product' : 'Add New Product'}
+        </Typography >
+        <IconButton onClick={onCloseDialog} size="small" className="text-gray-500  w-8 h-8">
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </DialogTitle>
+
+      <form onSubmit={handleSubmit}>
+        <DialogContent className="p-6">
+          <Grid container spacing={3}>
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Product Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-                size="small"
-                error={!!errors.name}
-                helperText={errors.name}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth size="small" error={!!errors.category}>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  name="category"
-                  value={formData.category}
+              <motion.div variants={inputVariants}>
+                <TextField
+                  fullWidth
+                  label="Product Name"
+                  name="name"
+                  value={formData.name}
                   onChange={handleChange}
-                  label="Category"
-                  required
-                >
-                  {categories.map((category) => (
-                    <MenuItem key={category} value={category}>
-                      {category}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <FormHelperText>{errors.category}</FormHelperText>
-              </FormControl>
+                  error={!!errors.name}
+                  helperText={errors.name}
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
+                />
+              </motion.div>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                multiline
-                rows={2}
-                size="small"
-                error={!!errors.description}
-                helperText={errors.description}
-              />
+
+            <Grid item xs={12} sm={6}>
+              <motion.div variants={inputVariants}>
+                <FormControl fullWidth error={!!errors.category}>
+                  <InputLabel>Category</InputLabel>
+                  <Select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                    label="Category"
+                    className="rounded-lg bg-white"
+                    startAdornment={<CategoryIcon className="text-gray-400 ml-2 mr-2" />}
+                  >
+                    {categories.map((category) => (
+                      <MenuItem key={category} value={category}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {errors.category && (
+                    <Typography variant="caption" color="error" className="mt-1">
+                      {errors.category}
+                    </Typography>
+                  )}
+                </FormControl>
+              </motion.div>
             </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Price"
-                name="price"
-                type="number"
-                value={formData.price}
-                onChange={handleChange}
-                required
-                size="small"
-                error={!!errors.price}
-                helperText={errors.price}
-                inputProps={{ min: 0, step: "0.01" }}
-              />
+
+            <Grid item xs={12} sm={6}>
+              <motion.div variants={inputVariants}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleChange}
+                    label="Status"
+                    className="rounded-lg bg-white"
+                  >
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                  </Select>
+                </FormControl>
+              </motion.div>
             </Grid>
+
             <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Stock"
-                name="stock"
-                type="number"
-                value={formData.stock}
-                onChange={handleChange}
-                required
-                size="small"
-                error={!!errors.stock}
-                helperText={errors.stock}
-                inputProps={{ min: 0, step: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Discount (%)"
-                name="discount"
-                type="number"
-                value={formData.discount}
-                onChange={handleChange}
-                size="small"
-                error={!!errors.discount}
-                helperText={errors.discount}
-                inputProps={{ min: 0, max: 100, step: 1 }}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <FormControl fullWidth size="small">
-                <InputLabel>Status</InputLabel>
-                <Select
-                  name="status"
-                  value={formData.status}
+              <motion.div variants={inputVariants}>
+                <TextField
+                  fullWidth
+                  label="Description"
+                  name="description"
+                  value={formData.description}
                   onChange={handleChange}
-                  label="Status"
-                >
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="Inactive">Inactive</MenuItem>
-                </Select>
-              </FormControl>
+                  multiline
+                  rows={3}
+                  className="bg-white"
+                  InputProps={{
+                    className: "rounded-lg"
+                  }}
+                />
+              </motion.div>
             </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <motion.div variants={inputVariants}>
+                <TextField
+                  fullWidth
+                  label="Price"
+                  name="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={handleChange}
+                  error={!!errors.price}
+                  helperText={errors.price}
+                  InputProps={{
+                    startAdornment: <AttachMoneyIcon className="text-gray-400 mr-2" />,
+                    className: "rounded-lg"
+                  }}
+                  className="bg-white"
+                />
+              </motion.div>
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <motion.div variants={inputVariants}>
+                <TextField
+                  fullWidth
+                  label="Stock"
+                  name="stock"
+                  type="number"
+                  value={formData.stock}
+                  onChange={handleChange}
+                  error={!!errors.stock}
+                  helperText={errors.stock}
+                  InputProps={{
+                    startAdornment: <InventoryIcon className="text-gray-400 mr-2" />,
+                    className: "rounded-lg"
+                  }}
+                  className="bg-white"
+                />
+              </motion.div>
+            </Grid>
+
             <Grid item xs={12}>
-              <input
-                accept="image/jpeg,image/png,image/webp"
-                type="file"
-                id="image-upload"
-                multiple
-                onChange={handleImageChange}
-                style={{ display: 'none' }}
-              />
-              <label htmlFor="image-upload">
-                <Button 
-                  variant="outlined" 
-                  component="span" 
-                  size="small"
-                  disabled={isUploading}
-                >
-                  {isUploading ? 'Uploading...' : 'Upload Product Images'}
-                </Button>
-              </label>
-              <FormHelperText error={!!errors.images}>{errors.images}</FormHelperText>
-              
-              <Grid container spacing={1} sx={{ mt: 2 }}>
-                {formData.images.map((imageUrl, index) => (
-                  <Grid item key={index}>
-                    <div style={{ position: 'relative' }}>
-                      <img 
-                        src={imageUrl} 
-                        alt={`Product ${index + 1}`} 
-                        style={{ width: 100, height: 100, objectFit: 'cover' }}
-                      />
-                      <IconButton
-                        size="small"
-                        onClick={() => handleRemoveImage(index)}
-                        sx={{
-                          width: '20px',
-                          height: '20px',
-                          position: 'absolute',
-                          top: -8,
-                          right: -8,
-                          backgroundColor: 'white',
-                          '&:hover': { backgroundColor: '#f5f5f5' }
-                        }}
-                      >
-                        <CloseIcon fontSize="small" />
-                      </IconButton>
-                    </div>
-                  </Grid>
-                ))}
-              </Grid>
+              <motion.div variants={inputVariants}>
+                <Box className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <input
+                    accept="image/jpeg,image/png,image/webp"
+                    type="file"
+                    id="image-upload"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <label htmlFor="image-upload">
+                    <Button
+                      component="span"
+                      startIcon={<AddPhotoAlternateIcon />}
+                      className="mb-2"
+                      disabled={isUploading}
+                    >
+                      {isUploading ? 'Uploading...' : 'Upload Images'}
+                    </Button>
+                  </label>
+
+                  {uploadError && (
+                    <Alert severity="error" className="mb-2">
+                      {uploadError}
+                    </Alert>
+                  )}
+
+                  {errors.images && (
+                    <Typography variant="caption" color="error">
+                      {errors.images}
+                    </Typography>
+                  )}
+
+                  <AnimatePresence>
+                    <Grid container spacing={2} className="mt-2">
+                      {formData.images.map((imageUrl, index) => (
+                        <Grid item key={index}>
+                          <motion.div
+                            variants={imageVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="relative"
+                          >
+                            <img 
+                              src={imageUrl} 
+                              alt={`Product ${index + 1}`} 
+                              className="w-24 h-24 object-cover rounded-lg"
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveImage(index)}
+                              className="absolute -top-2 -right-2 bg-white shadow-md hover:bg-red-50"
+                            >
+                              <DeleteIcon className="text-red-500 w-8 h-8" fontSize="small" />
+                            </IconButton>
+                          </motion.div>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </AnimatePresence>
+                </Box>
+              </motion.div>
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={handleCloseWithReset}>Cancel</Button>
-          <Button type="submit" variant="contained" color="primary">
-            Save Product
+
+        <DialogActions className="p-4 bg-gray-50 border-t">
+          <Button 
+            onClick={onCloseDialog}
+            className="text-gray-600 hover:bg-gray-100"
+          >
+            Cancel
+          </Button>
+          <Button 
+            type="submit"
+            variant="contained"
+            className="bg-primary-600 hover:bg-primary-700 text-white"
+          >
+            {editProduct ? 'Update' : 'Create'} Product
           </Button>
         </DialogActions>
       </form>

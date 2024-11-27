@@ -8,9 +8,11 @@ import {
   Toolbar,
   useTheme,
   useMediaQuery,
-  Box
+  Box,
+  Typography
 } from '@mui/material';
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -18,6 +20,44 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import ChatIcon from '@mui/icons-material/Chat';
 import SettingsIcon from '@mui/icons-material/Settings';
+
+const menuItemVariants = {
+  hover: { 
+    scale: 1.02,
+    transition: { duration: 0.2 }
+  }
+};
+
+const MenuItem = ({ icon, text, path, selected }) => (
+  <motion.div
+    variants={menuItemVariants}
+    whileHover="hover"
+    className="w-full"
+  >
+    <ListItem 
+      button 
+      component={Link} 
+      to={path}
+      selected={selected}
+      className={`rounded-lg mb-1 ${
+        selected 
+          ? 'bg-primary-600 text-white hover:bg-primary-700' 
+          : 'hover:bg-gray-100'
+      }`}
+    >
+      <ListItemIcon className={`min-w-[40px] ${selected ? 'text-white' : 'text-gray-500'}`}>
+        {icon}
+      </ListItemIcon>
+      <ListItemText 
+        primary={
+          <Typography variant="body2" className="font-medium">
+            {text}
+          </Typography>
+        }
+      />
+    </ListItem>
+  </motion.div>
+);
 
 function SideNav({ mobileOpen, onMobileClose }) {
   const theme = useTheme();
@@ -36,82 +76,47 @@ function SideNav({ mobileOpen, onMobileClose }) {
   ];
 
   const drawerContent = (
-    <>
-      <Toolbar />
-      <List sx={{ px: { xs: 1, sm: 2 } }}>
+    <Box className="h-full bg-white">
+      <Toolbar className="px-6">
+        <Typography variant="h6" className="font-semibold text-primary-600">
+          E-GlowCo Seller
+        </Typography>
+      </Toolbar>
+      <List className="px-3 py-2">
         {menuItems.map((item) => (
-          <ListItem 
-            button 
-            component={Link} 
-            to={item.path}
+          <MenuItem
             key={item.text}
+            icon={item.icon}
+            text={item.text}
+            path={item.path}
             selected={location.pathname === item.path}
-            sx={{
-              borderRadius: 1,
-              mb: 0.5,
-              '&.Mui-selected': {
-                backgroundColor: 'primary.main',
-                color: 'primary.contrastText',
-                '&:hover': {
-                  backgroundColor: 'primary.dark',
-                },
-                '& .MuiListItemIcon-root': {
-                  color: 'primary.contrastText',
-                }
-              }
-            }}
-          >
-            <ListItemIcon sx={{ 
-              minWidth: { xs: 40, sm: 45 },
-              color: location.pathname === item.path ? 'inherit' : 'text.secondary'
-            }}>
-              {item.icon}
-            </ListItemIcon>
-            <ListItemText 
-              primary={item.text}
-              primaryTypographyProps={{
-                fontSize: { xs: '0.9rem', sm: '1rem' }
-              }}
-            />
-          </ListItem>
+          />
         ))}
       </List>
-    </>
+    </Box>
   );
 
   return (
     <Box component="nav">
       {isMobile ? (
-        // Mobile drawer
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={onMobileClose}
           ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { 
-              width: drawerWidth,
-              boxSizing: 'border-box',
-            },
+          className="w-[240px]"
+          PaperProps={{
+            className: "w-[240px] border-r border-gray-200"
           }}
         >
           {drawerContent}
         </Drawer>
       ) : (
-        // Desktop drawer
         <Drawer
           variant="permanent"
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            width: drawerWidth,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': { 
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              borderRight: '1px solid',
-              borderColor: 'divider'
-            },
+          className="w-[240px] hidden sm:block"
+          PaperProps={{
+            className: "w-[240px] border-r border-gray-200"
           }}
         >
           {drawerContent}
