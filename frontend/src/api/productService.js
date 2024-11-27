@@ -48,7 +48,7 @@ export const updateProduct = async (productId, productData) => {
     const config = {
       headers: {
         'Authorization': `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data'
+        'Content-Type': 'application/json'
       }
     };
     
@@ -101,6 +101,16 @@ export const removeDiscount = async (productId, discountId) => {
     return response.data;
   } catch (error) {
     console.error('Error removing discount:', error.response?.data || error.message);
+    throw error;
+  }
+};
+
+export const getProductStats = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/stats`, getAuthHeaders());
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching product stats:', error);
     throw error;
   }
 }; 

@@ -14,7 +14,7 @@ const getProducts = async (req, res) => {
 // Create a new product
 const createProduct = async (req, res) => {
   try {
-    console.log('Received request body:', req.body);
+   // console.log('Received request body:', req.body);
     
     const product = new Product({
       name: req.body.name,
@@ -27,9 +27,9 @@ const createProduct = async (req, res) => {
       images: req.body.images || []
     });
 
-    console.log('Product before save:', product);
+    //console.log('Product before save:', product);
     const newProduct = await product.save();
-    console.log('Saved product:', newProduct);
+    //console.log('Saved product:', newProduct);
 
     res.status(201).json(newProduct);
   } catch (error) {
@@ -139,11 +139,32 @@ const removeDiscount = async (req, res) => {
   }
 };
 
+const getProductStats = async (req, res) => {
+  try {
+    const total = await Product.countDocuments();
+    const lowStock = await Product.countDocuments({ stock: { $lt: 10 } });
+    const active = await Product.countDocuments({ status: 'Active' });
+    const withDiscount = await Product.countDocuments({ 
+      'currentDiscount': { $gt: 0 } 
+    });
+
+    res.json({
+      total,
+      lowStock,
+      active,
+      withDiscount
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = { 
   getProducts, 
   createProduct, 
   updateProduct, 
   deleteProduct, 
   applyDiscount, 
-  removeDiscount 
+  removeDiscount, 
+  getProductStats
 };

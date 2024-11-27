@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Box, 
   Typography, 
   Button,
   useTheme,
   useMediaQuery,
+  Grid,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ProductList from './components/ProductList';
@@ -12,9 +13,36 @@ import ProductFilter from './components/ProductFilter';
 import ProductForm from './components/ProductForm';
 import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
-import { addProduct, updateProduct } from '../../api/productService';
+import { addProduct, updateProduct, getProductStats, fetchProducts as fetchProductsAPI } from '../../api/productService';
 import AddButton from './components/AddButton';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import ProductStats from './components/ProductStats';
+import ProductSort from './components/ProductSort';
+
+const sortProducts = (products, sortBy) => {
+  const sortedProducts = [...products];
+  
+  switch (sortBy) {
+    case 'nameAsc':
+      return sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+    case 'nameDesc':
+      return sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+    case 'priceAsc':
+      return sortedProducts.sort((a, b) => a.price - b.price);
+    case 'priceDesc':
+      return sortedProducts.sort((a, b) => b.price - a.price);
+    case 'stockAsc':
+      return sortedProducts.sort((a, b) => a.stock - b.stock);
+    case 'stockDesc':
+      return sortedProducts.sort((a, b) => b.stock - a.stock);
+    case 'newest':
+      return sortedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    case 'oldest':
+      return sortedProducts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    default:
+      return sortedProducts;
+  }
+};
 
 function ProductsPage() {
   const theme = useTheme();
@@ -23,6 +51,65 @@ function ProductsPage() {
   const [refreshList, setRefreshList] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [sortBy, setSortBy] = useState('newest');
+  const [filter, setFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [products, setProducts] = useState([]);
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    fetchStats();
+    fetchProducts();
+  }, [refreshList]);
+
+  const fetchStats = async () => {
+    try {
+      const data = await getProductStats();
+      setStats(data);
+    } catch (error) {
+      console.error('Error fetching product stats:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const data = await fetchProductsAPI();
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Failed to load products:', error);
+      setProducts([]);
+    }
+  };
+
+  // Filter products based on status
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+    
+    let filtered = [...products];
+    switch (filter) {
+      case 'active':
+        filtered = filtered.filter(product => product.status === 'Active');
+        break;
+      case 'inactive':
+        filtered = filtered.filter(product => product.status === 'Inactive');
+        break;
+      default:
+        break;
+    }
+    return filtered;
+  }, [products, filter]);
+
+  // Sort filtered products
+  const sortedProducts = useMemo(() => {
+    return sortProducts(filteredProducts, sortBy);
+  }, [filteredProducts, sortBy]);
+
+  // Paginate sorted products
+  const paginatedProducts = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return sortedProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedProducts, page]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -51,6 +138,15 @@ function ProductsPage() {
     } catch (error) {
       console.error('Error saving product:', error);
     }
+  };
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+  };
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    setPage(1);
   };
 
   return (
@@ -98,19 +194,47 @@ function ProductsPage() {
             />
           </Box>
 
-          <ProductFilter />
+          {/* Stats Section */}
+          <Box className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <ProductStats stats={stats} />
+          </Box>
+
+          {/* Filter and Sort Controls */}
+          <Box className="mb-4">
+            <Grid container direction="column" spacing={2}>
+              <Grid item>
+                <ProductFilter 
+                  filter={filter}
+                  onFilterChange={handleFilterChange}
+                />
+              </Grid>
+              <Grid item>
+                <Box className="flex justify-between gap-4">
+                  <Typography variant="body2" color="textSecondary">
+                    Showing {paginatedProducts.length} of {filteredProducts.length} products
+                  </Typography>
+                  <ProductSort 
+                    sortBy={sortBy}
+                    onSortChange={handleSortChange}
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+          </Box>
         </Box>
         
         {/* Product List */}
-        <Box sx={{ 
-          px:2,
-          flexGrow: 1,
-          overflow: 'auto',
-          bgcolor: 'background.paper'
-        }}>
+        <Box sx={{ px: 2, flexGrow: 1, overflow: 'auto', bgcolor: 'background.paper' }}>
           <ProductList 
+            products={paginatedProducts} 
             refreshTrigger={refreshList} 
             onEditProduct={handleEditProduct}
+            sortBy={sortBy}
+            filter={filter}
+            page={page}
+            onPageChange={(_, newPage) => setPage(newPage)}
+            totalPages={Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
+            onRefresh={() => setRefreshList(prev => !prev)}
           />
         </Box>
 

@@ -51,3 +51,19 @@ export const deleteDiscount = async (id) => {
     throw error;
   }
 };
+
+export const getDiscountStats = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    };
+    const response = await axios.get(`${API_URL}/stats`, config);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching discount stats:', error);
+    throw error;
+  }
+};

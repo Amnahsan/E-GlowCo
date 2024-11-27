@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { theme } from './themes/theme';
+import PrivateRoute from './components/auth/PrivateRoute';
 
 // Pages
 import Home from "./pages/home/HomePage";
@@ -14,6 +15,9 @@ import ProductManagement from "./components/AdminDashboard/productMng";
 import Dashboard from "./components/SellerDashboard/SellerDashboard";
 import Products from "./components/SellerDashboard/ProductsPage";
 import DiscountPage from "./components/SellerDashboard/DiscountPage";
+import FeedbackPage from './components/feedback/customer/FeedbackPage';
+import SellerFeedbackPage from './components/feedback/seller/SellerFeedbackPage';
+import ProductFeedbacks from './components/product/ProductFeedbacks';
 
 // Global Styles
 import './App.css';
@@ -29,6 +33,35 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/product/:id/reviews" element={<ProductFeedbacks />} />
+
+            {/* Customer Routes */}
+            <Route 
+              path="/feedback" 
+              element={
+                <PrivateRoute allowedRoles={['user']}>
+                  <FeedbackPage />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/feedback/new/:productId" 
+              element={
+                <PrivateRoute allowedRoles={['user']}>
+                  <FeedbackPage />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Seller Routes */}
+            <Route 
+              path="/seller-dashboard/feedback" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <SellerFeedbackPage />
+                </PrivateRoute>
+              } 
+            />
 
             {/* Admin Routes */}
             <Route path="/admin-dashboard" element={<AdminWelcome />} />

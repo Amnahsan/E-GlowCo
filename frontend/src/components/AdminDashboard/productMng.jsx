@@ -22,9 +22,9 @@ const AddProduct = () => {
     const storedToken = localStorage.getItem("token");
     if (storedToken) {
       setToken(storedToken);
-      console.log("Token retrieved from localStorage:", storedToken);
+    //  console.log("Token retrieved from localStorage:", storedToken);
     } else {
-      console.log("No token found in localStorage");
+      //console.log("No token found in localStorage");
     }
   }, []); // Run once on mount
 
@@ -62,7 +62,7 @@ const AddProduct = () => {
           'Authorization': `Bearer ${token}` // Add your authorization token if needed
         }
       });
-      console.log('Product added successfully', response.data);
+      //console.log('Product added successfully', response.data);
       setMessage("Product added successfully!");
       setError("");  // Clear any previous errors
     } catch (error) {

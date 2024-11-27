@@ -1,13 +1,33 @@
 import React from 'react';
-import { Box, TextField, Button } from '@mui/material';
+import { Box, Tabs, Tab, Paper } from '@mui/material';
 
-function ProductFilter() {
+const ProductFilter = ({ filter, onFilterChange }) => {
+  const handleChange = (event, newValue) => {
+    onFilterChange(newValue);
+  };
+
   return (
-    <Box sx={{ display: 'flex', gap: 2, mt: 3 }}>
-      <TextField label="Search" variant="outlined" size="small" />
-      <Button variant="outlined">Filter</Button>
-    </Box>
+    <Paper className="mb-6">
+      <Tabs
+        value={filter}
+        onChange={handleChange}
+        className="border-b border-gray-200"
+      >
+        <Tab 
+          label="All Products" 
+          value="all" 
+        />
+        <Tab 
+          label="Active" 
+          value="active"
+        />
+        <Tab 
+          label="Inactive" 
+          value="inactive"
+        />
+      </Tabs>
+    </Paper>
   );
-}
+};
 
 export default ProductFilter; 

@@ -1,4 +1,5 @@
 const Discount = require('../models/Discount');
+const Product = require('../models/productModel');
 
 // Get all discounts
 const getDiscounts = async (req, res) => {
@@ -56,9 +57,41 @@ const deleteDiscount = async (req, res) => {
   }
 };
 
+// Add this new function
+const getDiscountStats = async (req, res) => {
+  try {
+    const total = await Discount.countDocuments();
+    const active = await Discount.countDocuments({
+      startDate: { $lte: new Date() },
+      endDate: { $gte: new Date() }
+    });
+    
+    // Count products with active discounts
+    const applied = await Product.countDocuments({
+      'currentDiscount': { $gt: 0 }
+    });
+
+    // Calculate average discount percentage
+    const discounts = await Discount.find();
+    const avgDiscount = discounts.length > 0
+      ? Math.round(discounts.reduce((acc, curr) => acc + curr.discountPercentage, 0) / discounts.length)
+      : 0;
+
+    res.json({
+      total,
+      active,
+      applied,
+      avgDiscount
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getDiscounts,
   createDiscount,
   updateDiscount,
-  deleteDiscount
+  deleteDiscount,
+  getDiscountStats
 };

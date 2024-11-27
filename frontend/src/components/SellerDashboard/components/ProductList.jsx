@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -15,7 +15,8 @@ import {
   IconButton,
   Chip,
   Tooltip,
-  Badge
+  Badge,
+  Pagination
 } from '@mui/material';
 import { motion, AnimatePresence } from 'framer-motion';
 import EditIcon from '@mui/icons-material/Edit';
@@ -50,30 +51,50 @@ const rowVariants = {
   }
 };
 
-function ProductList({ refreshTrigger, onEditProduct }) {
-  const [products, setProducts] = useState([]);
+const sortProducts = (products, sortBy) => {
+  const sortedProducts = [...products];
+  
+  switch (sortBy) {
+    case 'nameAsc':
+      return sortedProducts.sort((a, b) => a.name.localeCompare(b.name));
+    case 'nameDesc':
+      return sortedProducts.sort((a, b) => b.name.localeCompare(a.name));
+    case 'priceAsc':
+      return sortedProducts.sort((a, b) => a.price - b.price);
+    case 'priceDesc':
+      return sortedProducts.sort((a, b) => b.price - a.price);
+    case 'stockAsc':
+      return sortedProducts.sort((a, b) => a.stock - b.stock);
+    case 'stockDesc':
+      return sortedProducts.sort((a, b) => b.stock - a.stock);
+    case 'newest':
+      return sortedProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    case 'oldest':
+      return sortedProducts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    default:
+      return sortedProducts;
+  }
+};
+
+const ITEMS_PER_PAGE = 10;
+
+function ProductList({ 
+  products, 
+  onEditProduct, 
+  page, 
+  onPageChange, 
+  totalPages,
+  onRefresh
+}) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openDiscountForm, setOpenDiscountForm] = useState(false);
 
-  useEffect(() => {
-    loadProducts();
-  }, [refreshTrigger]);
-
-  const loadProducts = async () => {
-    try {
-      const data = await fetchProducts();
-      setProducts(data);
-    } catch (error) {
-      console.error('Failed to load products:', error);
-    }
-  };
-
   const handleDelete = async (productId) => {
     try {
       await deleteProduct(productId);
-      await loadProducts();
+      onRefresh();
     } catch (error) {
       console.error('Failed to delete product:', error);
     }
@@ -82,8 +103,7 @@ function ProductList({ refreshTrigger, onEditProduct }) {
   const handleApplyDiscount = async (productId, discountId) => {
     try {
       await applyDiscount(productId, discountId);
-      // Refresh the product list
-      await loadProducts();
+      onRefresh();
       setOpenDiscountForm(false);
       setSelectedProduct(null);
     } catch (error) {
@@ -94,8 +114,7 @@ function ProductList({ refreshTrigger, onEditProduct }) {
   const handleRemoveDiscount = async (productId, discountId) => {
     try {
       await removeDiscount(productId, discountId);
-      // Refresh the product list
-      await loadProducts();
+      onRefresh();
       setOpenDiscountForm(false);
       setSelectedProduct(null);
     } catch (error) {
@@ -291,6 +310,15 @@ function ProductList({ refreshTrigger, onEditProduct }) {
               <ProductCard key={product._id} product={product} />
             ))}
           </AnimatePresence>
+          
+          <Box className="flex justify-center mt-6">
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={onPageChange}
+              color="primary"
+            />
+          </Box>
         </Box>
 
         <ApplyDiscountForm
@@ -309,20 +337,17 @@ function ProductList({ refreshTrigger, onEditProduct }) {
 
   return (
     <>
-      <TableContainer 
-        component={Paper} 
-        className="mt-6 rounded-xl shadow-sm"
-      >
-        <Table>
+      <TableContainer component={Paper} className="mt-6 rounded-xl shadow-sm">
+        <Table stickyHeader>
           <TableHead>
             <TableRow className="bg-gray-50">
-              <TableCell className="font-semibold">Product</TableCell>
-              <TableCell className="font-semibold">Category</TableCell>
-              <TableCell className="font-semibold">Price</TableCell>
-              <TableCell className="font-semibold">Stock</TableCell>
-              <TableCell className="font-semibold">Discount</TableCell>
-              <TableCell className="font-semibold">Status</TableCell>
-              <TableCell className="font-semibold text-center">Actions</TableCell>
+              <TableCell className="font-semibold bg-gray-50">Product</TableCell>
+              <TableCell className="font-semibold bg-gray-50">Category</TableCell>
+              <TableCell className="font-semibold bg-gray-50">Price</TableCell>
+              <TableCell className="font-semibold bg-gray-50">Stock</TableCell>
+              <TableCell className="font-semibold bg-gray-50">Discount</TableCell>
+              <TableCell className="font-semibold bg-gray-50">Status</TableCell>
+              <TableCell className="font-semibold text-center bg-gray-50">Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -334,6 +359,15 @@ function ProductList({ refreshTrigger, onEditProduct }) {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Box className="flex justify-center mt-6">
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={onPageChange}
+          color="primary"
+        />
+      </Box>
 
       <ApplyDiscountForm
         open={openDiscountForm}

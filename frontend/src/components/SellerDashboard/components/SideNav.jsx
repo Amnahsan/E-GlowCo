@@ -20,6 +20,7 @@ import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import ChatIcon from '@mui/icons-material/Chat';
 import SettingsIcon from '@mui/icons-material/Settings';
+import FeedbackIcon from '@mui/icons-material/Feedback';
 
 const menuItemVariants = {
   hover: { 
@@ -70,6 +71,7 @@ function SideNav({ mobileOpen, onMobileClose }) {
     { text: 'Products', icon: <InventoryIcon />, path: '/seller-dashboard/products' },
     { text: 'Orders', icon: <ShoppingCartIcon />, path: '/seller-dashboard/orders' },
     { text: 'Discounts', icon: <LocalOfferIcon />, path: '/seller-dashboard/discounts' },
+    { text: 'Feedback', icon: <FeedbackIcon />, path: '/seller-dashboard/feedback' },
     { text: 'Videos', icon: <VideoLibraryIcon />, path: '/seller-dashboard/videos' },
     { text: 'Chat', icon: <ChatIcon />, path: '/seller-dashboard/chat' },
     { text: 'Settings', icon: <SettingsIcon />, path: '/seller-dashboard/settings' },

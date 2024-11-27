@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Box, 
   Typography, 
-  Button,
   useTheme,
   useMediaQuery,
+  Grid
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
 import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
 import AddDiscountForm from './components/AddDiscountForm';
@@ -14,6 +13,29 @@ import { fetchDiscounts, addDiscount, updateDiscount, deleteDiscount } from '../
 import DiscountList from './components/DiscountList';
 import AddButton from './components/AddButton';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import DiscountFilter from './components/DiscountFilter';
+import DiscountSort from './components/DiscountSort';
+
+const sortDiscounts = (discounts, sortBy) => {
+  const sortedDiscounts = [...discounts];
+  
+  switch (sortBy) {
+    case 'nameAsc':
+      return sortedDiscounts.sort((a, b) => a.name.localeCompare(b.name));
+    case 'nameDesc':
+      return sortedDiscounts.sort((a, b) => b.name.localeCompare(a.name));
+    case 'percentageAsc':
+      return sortedDiscounts.sort((a, b) => a.discountPercentage - b.discountPercentage);
+    case 'percentageDesc':
+      return sortedDiscounts.sort((a, b) => b.discountPercentage - a.discountPercentage);
+    case 'newest':
+      return sortedDiscounts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    case 'oldest':
+      return sortedDiscounts.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    default:
+      return sortedDiscounts;
+  }
+};
 
 function DiscountPage() {
   const theme = useTheme();
@@ -22,6 +44,10 @@ function DiscountPage() {
   const [openForm, setOpenForm] = useState(false);
   const [discounts, setDiscounts] = useState([]);
   const [editDiscount, setEditDiscount] = useState(null);
+  const [sortBy, setSortBy] = useState('newest');
+  const [filter, setFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
     loadDiscounts();
@@ -30,11 +56,47 @@ function DiscountPage() {
   const loadDiscounts = async () => {
     try {
       const data = await fetchDiscounts();
-      setDiscounts(data);
+      setDiscounts(data || []);
     } catch (error) {
       console.error('Error loading discounts:', error);
+      setDiscounts([]);
     }
   };
+
+  // Filter discounts based on status
+  const filteredDiscounts = useMemo(() => {
+    if (!Array.isArray(discounts)) return [];
+    
+    let filtered = [...discounts];
+    const now = new Date();
+    
+    switch (filter) {
+      case 'Active':
+        filtered = filtered.filter(discount => 
+          discount.status === 'Active'
+        );
+        break;
+      case 'Inactive':
+        filtered = filtered.filter(discount => 
+          discount.status === 'Inactive'
+        );
+        break;
+      default:
+        break;
+    }
+    return filtered;
+  }, [discounts, filter]);
+
+  // Sort filtered discounts
+  const sortedDiscounts = useMemo(() => {
+    return sortDiscounts(filteredDiscounts, sortBy);
+  }, [filteredDiscounts, sortBy]);
+
+  // Paginate sorted discounts
+  const paginatedDiscounts = useMemo(() => {
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    return sortedDiscounts.slice(start, start + ITEMS_PER_PAGE);
+  }, [sortedDiscounts, page]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -62,7 +124,7 @@ function DiscountPage() {
       } else {
         await addDiscount(discountData);
       }
-      loadDiscounts();
+      await refreshData();
       handleCloseForm();
     } catch (error) {
       console.error('Error saving discount:', error);
@@ -72,10 +134,14 @@ function DiscountPage() {
   const handleDeleteDiscount = async (discountId) => {
     try {
       await deleteDiscount(discountId);
-      loadDiscounts();
+      await refreshData();
     } catch (error) {
       console.error('Error deleting discount:', error);
     }
+  };
+
+  const refreshData = async () => {
+    await loadDiscounts();
   };
 
   return (
@@ -86,7 +152,6 @@ function DiscountPage() {
         onMobileClose={handleDrawerToggle}
       />
       
-      {/* Main content */}
       <Box 
         component="main" 
         sx={{ 
@@ -97,47 +162,60 @@ function DiscountPage() {
           display: 'flex',
           flexDirection: 'column',
           height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
-          bgcolor: 'background.default',
-          overflow: 'hidden'
+          bgcolor: 'background.default'
         }}
       >
-        {/* Header */}
-        <Box sx={{ px: 2, pt: 2, pb: 1 }}>
-          <Box sx={{ 
-            display: 'flex', 
-            flexDirection: { xs: 'column', sm: 'row' },
-            justifyContent: 'space-between', 
-            alignItems: { xs: 'stretch', sm: 'center' },
-            gap: 1,
-            mb: 2
-          }}>
-            <Typography 
-              variant={isMobile ? "h5" : "h4"} 
-              component="h1"
-              sx={{ fontWeight: 500 }}
-            >
-              Discounts
-            </Typography>
+        <Box sx={{ p: 3 }}>
+          {/* Create Discount Button */}
+          <Box sx={{ mb: 3 }}>
             <AddButton
               onClick={handleOpenForm}
-              label="Create Discount"
+              label="CREATE DISCOUNT"
               icon={LocalOfferIcon}
+              fullWidth
+              sx={{ 
+                height: '48px',
+                backgroundColor: '#E91E63',
+                '&:hover': {
+                  backgroundColor: '#D81B60'
+                }
+              }}
             />
           </Box>
-        </Box>
-        
-        {/* Discounts List */}
-        <Box sx={{ 
-          px: 2,
-          flexGrow: 1,
-          overflow: 'auto',
-          bgcolor: 'background.paper'
-        }}>
-          <DiscountList 
-            discounts={discounts}
-            onEditDiscount={handleEditDiscount}
-            onDeleteDiscount={handleDeleteDiscount}
+
+          {/* Filter Tabs */}
+          <DiscountFilter 
+            filter={filter}
+            onFilterChange={setFilter}
           />
+
+          {/* Sort and Count */}
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 3
+          }}>
+            <Typography variant="body2" color="textSecondary">
+              Showing {paginatedDiscounts.length} of {filteredDiscounts.length} discounts
+            </Typography>
+            <DiscountSort 
+              sortBy={sortBy}
+              onSortChange={setSortBy}
+            />
+          </Box>
+
+          {/* Discount List */}
+          <Box sx={{ flexGrow: 1 }}>
+            <DiscountList 
+              discounts={paginatedDiscounts}
+              onEditDiscount={handleEditDiscount}
+              onDeleteDiscount={handleDeleteDiscount}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              totalPages={Math.ceil(filteredDiscounts.length / ITEMS_PER_PAGE)}
+            />
+          </Box>
         </Box>
 
         <AddDiscountForm
