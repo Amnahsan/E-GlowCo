@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
-import './auth.css'; // Assuming the same CSS file is being used for both pages
+import { 
+  TextField, 
+  Button, 
+  Alert,
+  InputAdornment,
+  IconButton 
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import AuthLayout from './AuthLayout';
+import { loginUser } from '../../api/auth';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setErrorMessage('');
+    setSuccessMessage('');
 
     try {
-      // Sending POST request to login API
-      const response = await fetch('http://localhost:3001/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Invalid email or password');
-      }
-
-      const data = await response.json();
-      const { token, user } = data; // Correctly extract user object
-      const { role } = user; // Extract role from user
+      const data = await loginUser({ email, password });
+      const { token, user } = data;
+      const { role } = user;
 
       // Save the token and role to localStorage
       localStorage.setItem('token', token);
@@ -32,76 +37,94 @@ const Login = () => {
 
       // Show success message
       setSuccessMessage('Login successful! Redirecting...');
-      setErrorMessage(''); // Clear error message
 
       // Redirect based on user role
       setTimeout(() => {
-        if (role === 'admin') {
-          window.location.href = '/admin-dashboard'; // Corrected to match route
-        } else if (role === 'user') {
-          window.location.href = '/user-dashboard';
-        } else if (role === 'seller') {
-          window.location.href = '/seller-dashboard';
-        } else {
-          throw new Error('Invalid user role'); // Only reached if role is not recognized
+        switch (role) {
+          case 'admin':
+            navigate('/admin-dashboard');
+            break;
+          case 'user':
+            navigate('/user-dashboard');
+            break;
+          case 'seller':
+            navigate('/seller-dashboard');
+            break;
+          default:
+            throw new Error('Invalid user role');
         }
-      }, 2000); // Redirect after 2 seconds
+      }, 1500);
 
     } catch (error) {
-      setErrorMessage(error.message);
-      setSuccessMessage(''); // Clear success message
+      setErrorMessage(error.response?.data?.message || 'Invalid email or password');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="home-container">
-      {/* Header */}
-      <header className="header">
-        <div className="logo">SAM E-GlowCo</div>
-        <nav>
-          <ul className="nav-list">
-            <li><a href="/" className="nav-link">Home</a></li>
-            <li><a href="/register" className="nav-link">Register</a></li>
-            <li><a href="/login" className="nav-link">Login</a></li>
-          </ul>
-        </nav>
-      </header>
-
-      {/* Main Content */}
-      <main className="main-content">
-        <h1>Login</h1>
-        <form onSubmit={handleSubmit}>
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            placeholder="Email" 
-            required 
-          />
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            placeholder="Password" 
-            required 
-          />
-          <button type="submit">Login</button>
-        </form>
+    <AuthLayout title="Login">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <TextField
+          fullWidth
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          variant="outlined"
+          className="bg-gray-50"
+          disabled={isLoading}
+        />
         
-        {successMessage && <p className="success-message">{successMessage}</p>}
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-      </main>
+        <TextField
+          fullWidth
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          variant="outlined"
+          className="bg-gray-50"
+          disabled={isLoading}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
 
-      {/* Footer */}
-      <footer className="footer">
-        <p className="footer-text">© 2024 SAM E-GlowCo. All Rights Reserved.</p>
-        <div className="group-members">
-          <span>Samra Saleem</span>
-          <span>Muskan Tariq</span>
-          <span>Amna Hassan</span>
-        </div>
-      </footer>
-    </div>
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          className="bg-primary-600 hover:bg-primary-700 text-white py-3"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Logging in...' : 'Login'}
+        </Button>
+
+        {successMessage && (
+          <Alert severity="success" className="mt-4">
+            {successMessage}
+          </Alert>
+        )}
+        
+        {errorMessage && (
+          <Alert severity="error" className="mt-4">
+            {errorMessage}
+          </Alert>
+        )}
+      </form>
+    </AuthLayout>
   );
 };
 

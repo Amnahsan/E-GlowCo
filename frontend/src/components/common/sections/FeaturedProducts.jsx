@@ -39,7 +39,7 @@ const products = [
     name: 'Natural Face Cream',
     price: 29.99,
     rating: 4.5,
-    image: 'path/to/image1.jpg',
+    image: '/images/face-cream.jpg',
     discount: 20,
     isNew: true
   },

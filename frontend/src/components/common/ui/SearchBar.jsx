@@ -57,7 +57,7 @@ const SearchBar = () => {
             value={searchTerm}
             onChange={handleSearch}
           />
-          <IconButton type="submit" className="text-gray-400 hover:text-primary-600">
+          <IconButton type="submit" className="text-gray-400 hover:text-primary-600 w-10 h-10">
             <SearchIcon />
           </IconButton>
         </Paper>

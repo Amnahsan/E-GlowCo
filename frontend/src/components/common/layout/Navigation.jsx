@@ -62,11 +62,18 @@ const Navigation = () => {
         Categories
       </Button>
       
-      <Menu
+      {/* <Menu
         anchorEl={categoryAnchor}
         open={Boolean(categoryAnchor)}
         onClose={handleCategoryClose}
-        className="mt-2"
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
       >
         {categories.map((category) => (
           <MenuItem 
@@ -78,7 +85,7 @@ const Navigation = () => {
             {category}
           </MenuItem>
         ))}
-      </Menu>
+      </Menu> */}
 
       <Button 
         component={Link} 

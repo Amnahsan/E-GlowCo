@@ -159,13 +159,13 @@ const Reviews = () => {
             <Box className="flex justify-center gap-4">
               <IconButton 
                 onClick={prevReview}
-                className="bg-white hover:bg-gray-50 shadow-md"
+                className="bg-white hover:bg-gray-50 shadow-md w-10 h-10"
               >
                 <ArrowBackIcon />
               </IconButton>
               <IconButton 
                 onClick={nextReview}
-                className="bg-white hover:bg-gray-50 shadow-md"
+                className="bg-white hover:bg-gray-50 shadow-md w-10 h-10"
               >
                 <ArrowForwardIcon />
               </IconButton>

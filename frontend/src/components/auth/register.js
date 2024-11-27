@@ -1,86 +1,132 @@
-import { useState } from 'react';
-import axios from 'axios';
-import './auth.css'; // Assuming auth.css is the file you are using for global styles
+import React, { useState } from 'react';
+import { 
+  TextField, 
+  Button, 
+  Alert,
+  InputAdornment,
+  IconButton,
+  MenuItem 
+} from '@mui/material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
+import AuthLayout from './AuthLayout';
+import { registerUser } from '../../api/auth';
 
 const Register = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log({ name, email, password, role });  // Log the data before sending
+    setIsLoading(true);
+    setErrorMessage('');
 
     try {
-      await axios.post('http://localhost:3001/api/auth/register', { name, email, password, role });
-      window.location.href = '/login';
+      await registerUser({ name, email, password, role });
+      // Show success message and redirect to login
+      navigate('/login', { 
+        state: { 
+          message: 'Registration successful! Please login to continue.' 
+        }
+      });
     } catch (error) {
-      setErrorMessage(error.response?.data?.message || 'Registration failed');
+      setErrorMessage(error.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="home-container">
-      {/* Header */}
-      <header className="header">
-        <div className="logo">SAM E-GlowCo</div>
-        <nav>
-          <ul className="nav-list">
-            <li><a href="/" className="nav-link">Home</a></li>
-            <li><a href="/register" className="nav-link">Register</a></li>
-            <li><a href="/login" className="nav-link">Login</a></li>
-          </ul>
-        </nav>
-      </header>
+    <AuthLayout title="Register">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <TextField
+          fullWidth
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          variant="outlined"
+          className="bg-gray-50"
+          disabled={isLoading}
+        />
 
-      {/* Main Content */}
-      <main className="main-content">
-        <h1>Register</h1>
-        <form onSubmit={handleSubmit}>
-          <input 
-            type="text" 
-            value={name} 
-            onChange={(e) => setName(e.target.value)} 
-            placeholder="Name" 
-            required
-          />
-          <input 
-            type="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            placeholder="Email" 
-            required
-          />
-          <input 
-            type="password" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            placeholder="Password" 
-            required
-          />
-          <select value={role} onChange={(e) => setRole(e.target.value)} required>
-            <option value="">Select Role</option>
-            <option value="admin">Admin</option>
-            <option value="user">User</option>
-            <option value="seller">Seller</option>
-          </select>
-          <button type="submit">Register</button>
-        </form>
-        {errorMessage && <p>{errorMessage}</p>}
-      </main>
+        <TextField
+          fullWidth
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          variant="outlined"
+          className="bg-gray-50"
+          disabled={isLoading}
+        />
 
-      {/* Footer */}
-      <footer className="footer">
-        <p className="footer-text">© 2024 SAM E-GlowCo. All Rights Reserved.</p>
-        <div className="group-members">
-          <span>Samra Saleem</span>
-          <span>Muskan Tariq</span>
-          <span>Amna Hassan</span>
-        </div>
-      </footer>
-    </div>
+        <TextField
+          fullWidth
+          label="Password"
+          type={showPassword ? 'text' : 'password'}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          variant="outlined"
+          className="bg-gray-50"
+          disabled={isLoading}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  onClick={() => setShowPassword(!showPassword)}
+                  edge="end"
+                  disabled={isLoading}
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <TextField
+          select
+          fullWidth
+          label="Role"
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          required
+          variant="outlined"
+          className="bg-gray-50"
+          disabled={isLoading}
+        >
+          <MenuItem value="">Select Role</MenuItem>
+          <MenuItem value="admin">Admin</MenuItem>
+          <MenuItem value="user">User</MenuItem>
+          <MenuItem value="seller">Seller</MenuItem>
+        </TextField>
+
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          className="bg-primary-600 hover:bg-primary-700 text-white py-3"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Registering...' : 'Register'}
+        </Button>
+
+        {errorMessage && (
+          <Alert severity="error" className="mt-4">
+            {errorMessage}
+          </Alert>
+        )}
+      </form>
+    </AuthLayout>
   );
 };
 

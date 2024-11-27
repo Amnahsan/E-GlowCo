@@ -26,18 +26,18 @@ const containerVariants = {
 
 const HomePage = () => {
   return (
-    <Box className="min-h-screen bg-gray-50">
+    <Box className="min-h-screen bg-gray-50 overflow-x-hidden">
       <Header />
       
       <motion.main
         variants={containerVariants}
         initial="initial"
         animate="animate"
-        className="pt-16" // Add padding top to account for fixed header
+        className="pt-16 w-full"
       >
         <HeroSection />
         
-        <Box className="max-w-7xl mx-auto px-4">
+        <Box className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
           <FeaturedProducts />
           <Categories />
           <Promotions />

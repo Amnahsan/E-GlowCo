@@ -49,9 +49,9 @@ const Footer = () => {
   ];
 
   return (
-    <Box className="bg-gray-900 text-white pt-16 pb-8">
-      <Container maxWidth="lg">
-        <Grid container spacing={6}>
+    <Box className="bg-gray-900 text-white pt-12 md:pt-16 pb-8 w-full">
+      <Box className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <Grid container spacing={{ xs: 4, md: 6 }}>
           {/* Brand and Description */}
           <Grid item xs={12} md={4}>
             <motion.div
@@ -153,7 +153,7 @@ const Footer = () => {
             </Typography>
           </Box>
         </Box>
-      </Container>
+      </Box>
     </Box>
   );
 };

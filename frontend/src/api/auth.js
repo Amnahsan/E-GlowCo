@@ -1,7 +1,7 @@
 // frontend/src/api/auth.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/src/api/auth/'; // Ensure this points to the correct backend URL
+const API_URL = 'http://localhost:3001/api/auth/'; // Remove 'src' from the path
 
 export const registerUser = async (userData) => {
   const response = await axios.post(`${API_URL}register`, userData);

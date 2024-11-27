@@ -24,28 +24,28 @@ const categories = [
   {
     id: 1,
     name: 'Skincare',
-    image: 'path/to/skincare.jpg',
+    image: '/images/skin-care.jpg',
     description: 'Natural and effective skincare products',
     itemCount: 45
   },
   {
     id: 2,
     name: 'Makeup',
-    image: 'path/to/makeup.jpg',
+    image: '/images/makeup.jpg',
     description: 'Professional makeup essentials',
     itemCount: 78
   },
   {
     id: 3,
     name: 'Haircare',
-    image: 'path/to/haircare.jpg',
+    image: '/images/hair-care.jpg',
     description: 'Premium hair treatment products',
     itemCount: 34
   },
   {
     id: 4,
     name: 'Fragrances',
-    image: 'path/to/fragrances.jpg',
+    image: '/images/fragrances.jpg',
     description: 'Luxury perfumes and fragrances',
     itemCount: 23
   }

@@ -33,7 +33,7 @@ const promotions = [
     id: 1,
     title: 'Summer Sale',
     description: 'Up to 40% off on selected skincare products',
-    image: '/path/to/promo1.jpg',
+    image: '/images/face-cream.jpg',
     endDate: '2024-08-31',
     discount: '40%',
     bgColor: 'bg-pink-100'
@@ -42,7 +42,7 @@ const promotions = [
     id: 2,
     title: 'New Customer Special',
     description: 'Get 15% off on your first purchase',
-    image: '/path/to/promo2.jpg',
+    image: '/images/skin-care.jpg',
     code: 'WELCOME15',
     discount: '15%',
     bgColor: 'bg-purple-100'

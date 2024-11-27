@@ -34,7 +34,7 @@ const itemVariants = {
 const socialPosts = [
   {
     id: 1,
-    image: '/path/to/social1.jpg',
+    image: '/images/summer-collection.jpeg',
     caption: 'Discover our new summer skincare collection! ✨ #Beauty #Skincare',
     likes: '2.5K',
     comments: '128',
@@ -42,7 +42,7 @@ const socialPosts = [
   },
   {
     id: 2,
-    image: '/path/to/social2.jpg',
+    image: '/images/vitamin-C.jpg',
     caption: 'Morning glow with our vitamin C serum 🌟 #GlowingSkin',
     likes: '1.8K',
     comments: '95',
@@ -50,7 +50,7 @@ const socialPosts = [
   },
   {
     id: 3,
-    image: '/path/to/social3.jpg',
+    image: '/images/self-care.jpg',
     caption: 'Self-care Sunday essentials 💆‍♀️ #SelfCare #BeautyRoutine',
     likes: '3.2K',
     comments: '156',
@@ -58,7 +58,7 @@ const socialPosts = [
   },
   {
     id: 4,
-    image: '/path/to/social4.jpg',
+    image: '/images/makeup.jpg',
     caption: 'New makeup collection launch! 💄 #MakeupLover',
     likes: '4.1K',
     comments: '203',
@@ -66,7 +66,7 @@ const socialPosts = [
   },
   {
     id: 5,
-    image: '/path/to/social5.jpg',
+    image: '/images/natural-beauty.jpg',
     caption: 'Natural beauty tips and tricks 🌿 #NaturalBeauty',
     likes: '2.9K',
     comments: '145',
@@ -74,7 +74,7 @@ const socialPosts = [
   },
   {
     id: 6,
-    image: '/path/to/social6.jpg',
+    image: '/images/bts.jpg',
     caption: 'Behind the scenes at our photo shoot 📸 #BTS',
     likes: '1.7K',
     comments: '89',
@@ -84,8 +84,8 @@ const socialPosts = [
 
 const SocialFeed = () => {
   return (
-    <Box className="py-20 bg-gray-50">
-      <Container maxWidth="lg">
+    <Box className="py-12 md:py-20 bg-gray-50 w-full">
+      <Box className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -94,7 +94,7 @@ const SocialFeed = () => {
         >
           <Box className="text-center mb-12">
             <Box className="flex items-center justify-center gap-2 mb-4">
-              <InstagramIcon className="text-4xl text-primary-600" />
+              <InstagramIcon className="text-4xl text-primary-600 w-10 h-10" />
               <Typography 
                 variant="h2" 
                 className="text-3xl md:text-4xl font-bold"
@@ -116,7 +116,7 @@ const SocialFeed = () => {
             </Typography>
           </Box>
 
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 2, md: 3 }}>
             {socialPosts.map((post) => (
               <Grid item xs={12} sm={6} md={4} key={post.id}>
                 <motion.div variants={itemVariants}>
@@ -138,11 +138,11 @@ const SocialFeed = () => {
                             {post.caption}
                           </Typography>
                           <Box className="flex gap-4">
-                            <Box className="flex items-center">
+                            <Box className="flex items-center w-10 h-10">
                               <FavoriteIcon className="mr-1" />
                               {post.likes}
                             </Box>
-                            <Box className="flex items-center">
+                            <Box className="flex items-center w-10 h-10">
                               <ChatBubbleOutlineIcon className="mr-1" />
                               {post.comments}
                             </Box>
@@ -161,13 +161,13 @@ const SocialFeed = () => {
                     {/* Action Buttons */}
                     <Box className="absolute bottom-4 right-4 flex gap-2">
                       <IconButton 
-                        className="bg-white hover:bg-gray-100 shadow-sm"
+                        className="bg-white hover:bg-gray-100 shadow-sm w-10 h-10"
                         size="small"
                       >
                         <FavoriteIcon fontSize="small" />
                       </IconButton>
                       <IconButton 
-                        className="bg-white hover:bg-gray-100 shadow-sm"
+                        className="bg-white hover:bg-gray-100 shadow-sm w-10 h-10"
                         size="small"
                       >
                         <ShareIcon fontSize="small" />
@@ -191,7 +191,7 @@ const SocialFeed = () => {
             </Button>
           </Box>
         </motion.div>
-      </Container>
+      </Box>
     </Box>
   );
 };

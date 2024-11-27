@@ -17,7 +17,7 @@ const HeroSection = () => {
         className="absolute inset-0"
       >
         <img
-          src="https://your-hero-image-url.jpg"
+          src="/images/hero-image.jpg"
           alt="Beauty Products"
           className="w-full h-full object-cover"
         />

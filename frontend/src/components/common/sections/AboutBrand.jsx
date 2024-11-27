@@ -101,7 +101,7 @@ const AboutBrand = () => {
               >
                 <Box className="aspect-w-4 aspect-h-3 rounded-2xl overflow-hidden">
                   <img
-                    src="/path/to/about-image.jpg"
+                    src="/images/about-brand.jpeg"
                     alt="About SAM E-GlowCo"
                     className="w-full h-full object-cover"
                   />
