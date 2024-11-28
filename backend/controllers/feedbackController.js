@@ -17,7 +17,7 @@ exports.getProductFeedbacks = async (req, res) => {
 // Get user's feedbacks
 exports.getUserFeedbacks = async (req, res) => {
   try {
-    const feedbacks = await Feedback.find({ userId: req.user._id })
+    const feedbacks = await Feedback.find({ userId: req.user.userId })
       .populate('productId', 'name')
       .sort({ createdAt: -1 });
     res.json(feedbacks);

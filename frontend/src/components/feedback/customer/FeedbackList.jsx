@@ -1,160 +1,138 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
+  Card,
+  CardContent,
   Rating,
-  Paper,
   Chip,
-  IconButton,
-  Menu,
-  MenuItem,
-  Divider
+  Grid,
+  CircularProgress,
+  Alert
 } from '@mui/material';
-import { MoreVert, Edit, Delete } from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import { getUserFeedbacks } from '../../../api/feedback';
 
-const FeedbackItem = ({ feedback, onEdit, onDelete }) => {
-  const [anchorEl, setAnchorEl] = React.useState(null);
+const FeedbackList = () => {
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  useEffect(() => {
+    loadFeedbacks();
+  }, []);
 
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleEdit = () => {
-    handleMenuClose();
-    onEdit(feedback);
-  };
-
-  const handleDelete = () => {
-    handleMenuClose();
-    onDelete(feedback._id);
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'warning';
-      case 'responded':
-        return 'success';
-      case 'resolved':
-        return 'info';
-      default:
-        return 'default';
+  const loadFeedbacks = async () => {
+    try {
+      const data = await getUserFeedbacks();
+      setFeedbacks(data);
+    } catch (error) {
+      setError(error.message || 'Error loading feedbacks');
+    } finally {
+      setLoading(false);
     }
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-    >
-      <Paper className="p-3 sm:p-6 space-y-3 sm:space-y-4">
-        <Box className="flex justify-between items-start">
-          <Box>
-            <Typography variant="h6" className="font-semibold">
-              {feedback.productId?.name || 'Product Deleted'}
-            </Typography>
-            <Box className="flex items-center space-x-2 mt-1">
-              <Rating value={feedback.rating} readOnly size="small" />
-              <Typography variant="caption" color="textSecondary">
-                {new Date(feedback.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                })}
-              </Typography>
-            </Box>
-          </Box>
+  if (loading) {
+    return (
+      <Box className="flex justify-center items-center py-8">
+        <CircularProgress />
+      </Box>
+    );
+  }
 
-          <Box className="flex items-center space-x-2">
-            <Chip
-              label={feedback.status}
-              size="small"
-              color={getStatusColor(feedback.status)}
-            />
-            <IconButton size="small" onClick={handleMenuOpen}>
-              <MoreVert />
-            </IconButton>
-          </Box>
+  if (error) {
+    return (
+      <Alert severity="error" className="my-4">
+        {error}
+      </Alert>
+    );
+  }
 
-          <Menu
-            anchorEl={anchorEl}
-            open={Boolean(anchorEl)}
-            onClose={handleMenuClose}
-          >
-            <MenuItem onClick={handleEdit}>
-              <Edit fontSize="small" className="mr-2" /> Edit
-            </MenuItem>
-            <MenuItem onClick={handleDelete}>
-              <Delete fontSize="small" className="mr-2" /> Delete
-            </MenuItem>
-          </Menu>
-        </Box>
-
-        <Typography variant="body1">{feedback.comment}</Typography>
-
-        {feedback.images && feedback.images.length > 0 && (
-          <Box className="flex gap-4 mt-4">
-            {feedback.images.map((image, index) => (
-              <img
-                key={index}
-                src={image}
-                alt={`Feedback ${index + 1}`}
-                className="w-24 h-24 object-cover rounded"
-              />
-            ))}
-          </Box>
-        )}
-
-        {feedback.response && (
-          <Box className="mt-4 bg-gray-50 p-4 rounded">
-            <Typography variant="subtitle2" className="font-semibold">
-              Seller Response:
-            </Typography>
-            <Typography variant="body2" className="mt-1">
-              {feedback.response.response}
-            </Typography>
-            <Typography variant="caption" color="textSecondary" className="mt-2 block">
-              {new Date(feedback.response.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              })}
-            </Typography>
-          </Box>
-        )}
-      </Paper>
-    </motion.div>
-  );
-};
-
-const FeedbackList = ({ feedbacks, onEdit, onDelete }) => {
-  return (
-    <Box className="space-y-6">
-      <Typography variant="h5" className="font-bold mb-6">
-        Your Feedbacks
-      </Typography>
-      
-      {feedbacks.length === 0 ? (
-        <Typography color="textSecondary" className="text-center py-8">
-          You haven't submitted any feedback yet.
+  if (feedbacks.length === 0) {
+    return (
+      <Box className="text-center py-8">
+        <Typography variant="h6" color="textSecondary">
+          You haven't submitted any feedback yet
         </Typography>
-      ) : (
-        feedbacks.map((feedback) => (
-          <FeedbackItem
-            key={feedback._id}
-            feedback={feedback}
-            onEdit={onEdit}
-            onDelete={onDelete}
-          />
-        ))
-      )}
-    </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <Grid container spacing={3}>
+      {feedbacks.map((feedback) => (
+        <Grid item xs={12} key={feedback._id}>
+          <Card>
+            <CardContent>
+              <Box className="flex justify-between items-start mb-4">
+                <Box>
+                  <Typography variant="h6" gutterBottom>
+                    {feedback.productId?.name || 'Product No Longer Available'}
+                  </Typography>
+                  <Rating value={feedback.rating} readOnly />
+                </Box>
+                <Typography variant="caption" color="textSecondary">
+                  {new Date(feedback.createdAt).toLocaleDateString()}
+                </Typography>
+              </Box>
+
+              <Typography variant="body1" className="mb-4">
+                {feedback.comment}
+              </Typography>
+
+              {feedback.images?.length > 0 && (
+                <Box className="flex gap-2 mb-4">
+                  {feedback.images.map((image, index) => (
+                    <img
+                      key={index}
+                      src={image}
+                      alt={`Feedback image ${index + 1}`}
+                      className="w-20 h-20 object-cover rounded"
+                    />
+                  ))}
+                </Box>
+              )}
+
+              {feedback.response && (
+                <Box className="bg-gray-50 p-4 rounded mt-4">
+                  <Typography variant="subtitle2" color="primary" gutterBottom>
+                    Seller Response:
+                  </Typography>
+                  <Typography variant="body2">
+                    {feedback.response.response}
+                  </Typography>
+                  <Typography variant="caption" color="textSecondary">
+                    Responded on: {new Date(feedback.response.createdAt).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              )}
+
+              <Box className="flex gap-2 mt-4">
+                <Chip 
+                  size="small" 
+                  label={feedback.status} 
+                  color={feedback.status === 'Published' ? 'success' : 'default'}
+                />
+                {!feedback.productId && (
+                  <Chip 
+                    size="small" 
+                    label="Product Deleted" 
+                    color="error" 
+                  />
+                )}
+                {feedback.response && (
+                  <Chip 
+                    size="small" 
+                    label="Seller Responded" 
+                    color="primary" 
+                  />
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 };
 

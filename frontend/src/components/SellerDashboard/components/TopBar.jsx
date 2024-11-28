@@ -115,7 +115,7 @@ function TopBar({ onMobileMenuToggle }) {
               </Avatar>
               {!isTablet && (
                 <Typography variant="body2" className="ml-2 font-medium">
-                  John Doe
+                  {JSON.parse(localStorage.getItem('user'))?.name || 'Seller'}
                 </Typography>
               )}
             </Button>

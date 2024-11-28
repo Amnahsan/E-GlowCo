@@ -9,6 +9,8 @@ const productRoute = require('./routes/productRoutes');
 const product = require('./routes/productRoutes');
 const discountRoutes = require('./routes/discountRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
+const orderRoutes = require('./routes/orderRoutes');
+
 const app = express();
 
 dotenv.config();
@@ -44,6 +46,8 @@ app.use('/api/product', productRoute);  // Use the productRoute for product-rela
 app.use('/api/seller/products', product);
 app.use('/api/seller/discounts', discountRoutes);
 app.use('/api/feedback', feedbackRoutes);
+app.use('/api/seller/orders', orderRoutes);
+
 // Example protected route
 app.get('/api/admin-data', authenticateJWT, (req, res) => {
   if (req.user.role === 'admin') {

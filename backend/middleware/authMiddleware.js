@@ -18,23 +18,23 @@ const auth = (req, res, next) => {
 };
 
 // Authenticate sellers only
-const authenticateSeller = (req, res, next) => {
-  const token = req.header('Authorization')?.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Access Denied. No token provided.' });
-  }
-
+const authenticateSeller = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const token = req.header('Authorization')?.replace('Bearer ', '');
     
+    if (!token) {
+      return res.status(401).json({ message: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     if (decoded.role !== 'seller') {
-      return res.status(403).json({ message: 'Access Denied. Seller access required.' });
+      return res.status(403).json({ message: 'Not authorized as seller' });
     }
 
     req.user = decoded;
     next();
-  } catch (err) {
+  } catch (error) {
+    console.error('Auth error:', error);
     res.status(403).json({ message: 'Invalid token' });
   }
 };

@@ -29,23 +29,28 @@ const Login = () => {
     try {
       const data = await loginUser({ email, password });
       const { token, user } = data;
-      const { role } = user;
-
-      // Save the token and role to localStorage
+      
+      // Save all necessary data to localStorage
       localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
+      localStorage.setItem('user', JSON.stringify({
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }));
+      localStorage.setItem('role', user.role);
 
       // Show success message
       setSuccessMessage('Login successful! Redirecting...');
 
       // Redirect based on user role
       setTimeout(() => {
-        switch (role) {
+        switch (user.role) {
           case 'admin':
             navigate('/admin-dashboard');
             break;
           case 'user':
-            navigate('/user-dashboard');
+            navigate('/customer-dashboard');
             break;
           case 'seller':
             navigate('/seller-dashboard');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Container, Alert, CircularProgress } from '@mui/material';
+import { Box, Button, Container, Alert, CircularProgress, Typography } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 import FeedbackForm from './FeedbackForm';
@@ -164,6 +164,10 @@ const FeedbackPage = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        <Typography variant="h4" gutterBottom>
+          My Feedbacks
+        </Typography>
+        <FeedbackList />
       </Container>
     </Box>
   );

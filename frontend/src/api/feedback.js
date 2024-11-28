@@ -115,25 +115,6 @@ export const updateResponse = async (responseId, responseData) => {
   }
 };
 
-// // Image upload helper
-// export const uploadFeedbackImages = async (images) => {
-//   try {
-//     const formData = new FormData();
-//     images.forEach((image, index) => {
-//       formData.append('images', image);
-//     });
-
-//     const response = await feedbackApi.post('/upload-images', formData, {
-//       headers: {
-//         'Content-Type': 'multipart/form-data'
-//       }
-//     });
-//     return response.data.imageUrls;
-//   } catch (error) {
-//     throw error.response?.data || { message: 'Error uploading images' };
-//   }
-// };
-
 // Feedback statistics
 export const getFeedbackStats = async () => {
   try {
@@ -144,41 +125,6 @@ export const getFeedbackStats = async () => {
   }
 };
 
-// // Custom hooks for common feedback operations
-// export const useFeedbackOperations = () => {
-//   const handleCreateFeedback = async (feedbackData) => {
-//     try {
-//       // If there are images, upload them first
-//       if (feedbackData.images?.length > 0) {
-//         const imageUrls = await uploadFeedbackImages(feedbackData.images);
-//         feedbackData.images = imageUrls;
-//       }
-//       return await createFeedback(feedbackData);
-//     } catch (error) {
-//       throw error;
-//     }
-//   };
-
-//   const handleUpdateFeedback = async (id, updateData) => {
-//     try {
-//       // If there are new images, upload them first
-//       if (updateData.newImages?.length > 0) {
-//         const imageUrls = await uploadFeedbackImages(updateData.newImages);
-//         updateData.images = [...(updateData.existingImages || []), ...imageUrls];
-//         delete updateData.newImages;
-//         delete updateData.existingImages;
-//       }
-//       return await updateFeedback(id, updateData);
-//     } catch (error) {
-//       throw error;
-//     }
-//   };
-
-//   return {
-//     handleCreateFeedback,
-//     handleUpdateFeedback
-//   };
-// };
 
 export const getFeedbacksByProduct = async (productId, options = {}) => {
   try {

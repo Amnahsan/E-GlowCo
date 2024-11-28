@@ -18,6 +18,11 @@ import DiscountPage from "./components/SellerDashboard/DiscountPage";
 import FeedbackPage from './components/feedback/customer/FeedbackPage';
 import SellerFeedbackPage from './components/feedback/seller/SellerFeedbackPage';
 import ProductFeedbacks from './components/product/ProductFeedbacks';
+import OrdersPage from './components/SellerDashboard/OrdersPage';
+import ProductOrderPage from './components/customer/ProductOrderPage';
+import CustomerDashboard from './components/customer/CustomerDashboard';
+import OrderHistory from './components/customer/OrderHistory';
+
 
 // Global Styles
 import './App.css';
@@ -62,6 +67,14 @@ function App() {
                 </PrivateRoute>
               } 
             />
+            <Route 
+              path="/seller-dashboard/orders" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <OrdersPage />
+                </PrivateRoute>
+              } 
+            />
 
             {/* Admin Routes */}
             <Route path="/admin-dashboard" element={<AdminWelcome />} />
@@ -71,6 +84,36 @@ function App() {
             <Route path="/seller-dashboard" element={<Dashboard />} />
             <Route path="/seller-dashboard/products" element={<Products />} />
             <Route path="/seller-dashboard/discounts" element={<DiscountPage />} />
+
+            {/* Customer Routes */}
+            <Route 
+              path="/order-products" 
+              element={
+                <PrivateRoute allowedRoles={['user']}>
+                  <ProductOrderPage />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Customer Routes */}
+            <Route 
+              path="/customer-dashboard" 
+              element={
+                <PrivateRoute allowedRoles={['user']}>
+                  <CustomerDashboard />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Customer Routes */}
+            <Route 
+              path="/order-history" 
+              element={
+                <PrivateRoute allowedRoles={['user']}>
+                  <OrderHistory />
+                </PrivateRoute>
+              } 
+            />
 
             {/* 404 Not Found Route */}
             <Route path="*" element={<NotFound />} />
