@@ -11,7 +11,7 @@ import {
   Box,
   Typography
 } from '@mui/material';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -21,6 +21,7 @@ import VideoLibraryIcon from '@mui/icons-material/VideoLibrary';
 import ChatIcon from '@mui/icons-material/Chat';
 import SettingsIcon from '@mui/icons-material/Settings';
 import FeedbackIcon from '@mui/icons-material/Feedback';
+import PropTypes from 'prop-types';
 
 const menuItemVariants = {
   hover: { 
@@ -60,11 +61,12 @@ const MenuItem = ({ icon, text, path, selected }) => (
   </motion.div>
 );
 
-function SideNav({ mobileOpen, onMobileClose }) {
+const SideNav = ({ mobileOpen, onMobileClose }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const location = useLocation();
   const drawerWidth = 240;
+  const navigate = useNavigate();
 
   const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/seller-dashboard' },
@@ -98,6 +100,13 @@ function SideNav({ mobileOpen, onMobileClose }) {
     </Box>
   );
 
+  const handleItemClick = (path) => {
+    navigate(path);
+    if (onMobileClose) {
+      onMobileClose();
+    }
+  };
+
   return (
     <Box component="nav">
       {isMobile ? (
@@ -126,6 +135,11 @@ function SideNav({ mobileOpen, onMobileClose }) {
       )}
     </Box>
   );
-}
+};
+
+SideNav.propTypes = {
+  mobileOpen: PropTypes.bool,
+  onMobileClose: PropTypes.func
+};
 
 export default SideNav;

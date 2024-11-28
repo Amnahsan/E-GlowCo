@@ -30,7 +30,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   CssBaseline,
-  Drawer
+  Drawer,
+  Toolbar
 } from '@mui/material';
 import { Add as AddIcon, Edit as EditIcon, Delete as DeleteIcon, PlayArrow, Visibility, ThumbUp, Share } from '@mui/icons-material';
 import TopBar from './components/TopBar';
@@ -38,6 +39,53 @@ import SideNav from './components/SideNav';
 import { videoService } from '../../api/videoService';
 import VideoFilter from './components/VideoFilter';
 import VideoAnalytics from './components/VideoAnalytics';
+import { motion, AnimatePresence } from 'framer-motion';
+import AddButton from './components/AddButton';
+const pageTransition = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.3 }
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+      ease: "easeOut"
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      duration: 0.3
+    }
+  },
+  hover: {
+    scale: 1.02,
+    transition: {
+      duration: 0.2
+    }
+  }
+};
 
 const VideoManagement = () => {
   const [videos, setVideos] = useState([]);
@@ -180,18 +228,20 @@ const VideoManagement = () => {
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       
-      {/* TopBar */}
       <TopBar onMobileMenuToggle={handleDrawerToggle} />
 
       {/* SideNav */}
-      <Box component="nav" sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}>
+      <Box
+        component="nav"
+        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+      >
         {/* Mobile drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
           ModalProps={{
-            keepMounted: true, // Better mobile performance
+            keepMounted: true,
           }}
           sx={{
             display: { xs: 'block', md: 'none' },
@@ -201,7 +251,8 @@ const VideoManagement = () => {
             },
           }}
         >
-          <SideNav />
+          <Toolbar />
+          <SideNav mobileOpen={mobileOpen} onMobileClose={handleDrawerToggle} />
         </Drawer>
 
         {/* Desktop drawer */}
@@ -216,7 +267,8 @@ const VideoManagement = () => {
           }}
           open
         >
-          <SideNav />
+          <Toolbar />
+          <SideNav mobileOpen={false} />
         </Drawer>
       </Box>
 
@@ -230,97 +282,147 @@ const VideoManagement = () => {
           marginTop: '64px'
         }}
       >
-        {/* Header */}
-        <Box className="flex justify-between items-center mb-6">
-          <Typography variant="h4">Tutorial Videos</Typography>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-          >
-            Add Video
-          </Button>
-        </Box>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Header */}
+          
+          <motion.div variants={itemVariants}>
+            <Box className="flex justify-between items-center mb-6">
+              <Typography variant="h4">Tutorial Videos</Typography>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <AddButton
+                  onClick={() => handleOpenDialog()}
+                  label="Add New Video"
+                />
+              </motion.div>
+            </Box>
+          </motion.div>
 
-        {/* Analytics Section */}
-        <Box className="mb-6">
-          <VideoAnalytics analytics={analyticsData} />
-        </Box>
+          {/* Analytics Section */}
+          <motion.div variants={itemVariants} className="mb-6">
+            <VideoAnalytics analytics={analyticsData} />
+          </motion.div>
 
-        {/* Alerts */}
-        {error && (
-          <Alert severity="error" className="mb-4" onClose={() => setError('')}>
-            {error}
-          </Alert>
-        )}
+          {/* Alerts */}
+          <AnimatePresence mode="wait">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Alert severity="error" className="mb-4" onClose={() => setError('')}>
+                  {error}
+                </Alert>
+              </motion.div>
+            )}
 
-        {success && (
-          <Alert severity="success" className="mb-4" onClose={() => setSuccess('')}>
-            {success}
-          </Alert>
-        )}
+            {success && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Alert severity="success" className="mb-4" onClose={() => setSuccess('')}>
+                  {success}
+                </Alert>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        {/* Filters */}
-        <VideoFilter 
-          filters={filters}
-          onFilterChange={setFilters}
-        />
+          {/* Filters */}
+          <motion.div variants={itemVariants}>
+            <VideoFilter 
+              filters={filters}
+              onFilterChange={setFilters}
+            />
+          </motion.div>
 
-        {/* Video Grid */}
-        <Grid container spacing={3}>
-          {getFilteredVideos().map((video) => (
-            <Grid item xs={12} md={6} lg={4} key={video._id}>
-              <Card>
-                <CardContent>
-                  <Typography variant="h6" gutterBottom>
-                    {video.title}
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" className="mb-2">
-                    {video.description}
-                  </Typography>
-                  <Box className="mb-2">
-                    {video.tags.map((tag, index) => (
-                      <Chip
-                        key={index}
-                        label={tag}
-                        size="small"
-                        className="mr-1 mb-1"
-                      />
-                    ))}
-                  </Box>
-                  <Typography variant="caption" display="block" gutterBottom>
-                    Category: {video.category}
-                  </Typography>
-                  <Box className="flex justify-between mt-4">
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      href={video.videoUrl}
-                      target="_blank"
-                    >
-                      Watch Video
-                    </Button>
-                    <Box>
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenDialog(video)}
-                      >
-                        <EditIcon />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => handleDelete(video._id)}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
+          {/* Video Grid */}
+          <motion.div variants={itemVariants}>
+            <Grid container spacing={3}>
+              {getFilteredVideos().map((video) => (
+                <Grid item xs={12} md={6} lg={4} key={video._id}>
+                  <motion.div
+                    variants={cardVariants}
+                    whileHover="hover"
+                    layout
+                  >
+                    <Card>
+                      <CardContent>
+                        <Typography variant="h6" gutterBottom>
+                          {video.title}
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" className="mb-2">
+                          {video.description}
+                        </Typography>
+                        <Box className="mb-2">
+                          {video.tags.map((tag, index) => (
+                            <motion.div
+                              key={index}
+                              initial={{ opacity: 0, scale: 0.8 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              transition={{ delay: index * 0.1 }}
+                              style={{ display: 'inline-block' }}
+                            >
+                              <Chip
+                                label={tag}
+                                size="small"
+                                className="mr-1 mb-1"
+                              />
+                            </motion.div>
+                          ))}
+                        </Box>
+                        <Typography variant="caption" display="block" gutterBottom>
+                          Category: {video.category}
+                        </Typography>
+                        <Box className="flex justify-between mt-4">
+                          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              href={video.videoUrl}
+                              target="_blank"
+                            >
+                              Watch Video
+                            </Button>
+                          </motion.div>
+                          <Box>
+                            <motion.div style={{ display: 'inline-block' }} whileHover={{ scale: 1.1 }}>
+                              <IconButton
+                                size="small"
+                                onClick={() => handleOpenDialog(video)}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                            </motion.div>
+                            <motion.div style={{ display: 'inline-block' }} whileHover={{ scale: 1.1 }}>
+                              <IconButton
+                                size="small"
+                                color="error"
+                                onClick={() => handleDelete(video._id)}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </motion.div>
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Grid>
+              ))}
             </Grid>
-          ))}
-        </Grid>
+          </motion.div>
+        </motion.div>
 
         {/* Video Form Dialog */}
         <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
