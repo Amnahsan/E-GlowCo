@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
@@ -23,12 +23,28 @@ import ProductOrderPage from './components/customer/ProductOrderPage';
 import CustomerDashboard from './components/customer/CustomerDashboard';
 import OrderHistory from './components/customer/OrderHistory';
 import VideoManagement from './components/SellerDashboard/VideoManagement';
-
+import ChatPage from './components/chat/ChatPage';
+import SellerChatPage from './components/SellerDashboard/SellerChatPage';
+import CustomerChatPage from './components/customer/CustomerChatPage';
+import SettingsPage from './components/SellerDashboard/SettingsPage';
 
 // Global Styles
 import './App.css';
+import socketService from './services/socketService';
 
 function App() {
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('token')) {
+      socketService.init();
+    }
+
+    return () => {
+      socketService.disconnect();
+    };
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Provides consistent baseline styles */}
@@ -141,6 +157,36 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={['user']}>
                   <OrderHistory />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Seller Routes */}
+            <Route 
+              path="/seller-dashboard/chat" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <SellerChatPage />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Customer Routes */}
+            <Route 
+              path="/customer-dashboard/chat" 
+              element={
+                <PrivateRoute allowedRoles={['user']}>
+                  <CustomerChatPage />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Seller Routes */}
+            <Route 
+              path="/seller-dashboard/settings" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <SettingsPage />
                 </PrivateRoute>
               } 
             />

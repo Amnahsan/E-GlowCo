@@ -13,7 +13,8 @@ import {
   Feedback, 
   Person,
   History,
-  Logout 
+  Logout,
+  Chat as ChatIcon
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
@@ -122,6 +123,27 @@ const CustomerDashboard = () => {
           </Box>
         </CardContent>
       </Card>
+
+      <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1000 }}>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<ChatIcon />}
+          onClick={() => navigate('/customer-dashboard/chat')}
+          sx={{
+            borderRadius: 30,
+            padding: '10px 20px',
+            boxShadow: 3,
+            '&:hover': {
+              transform: 'scale(1.05)',
+              boxShadow: 4
+            },
+            transition: 'all 0.2s ease-in-out'
+          }}
+        >
+          Chat with Sellers
+        </Button>
+      </Box>
     </Container>
   );
 };

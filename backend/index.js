@@ -1,7 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');  // Import jsonwebtoken
+const jwt = require('jsonwebtoken');
+const http = require('http');
+const socketSetup = require('./socket/chatSocket');
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/userroute');  // Correct import path for authRoutes
@@ -11,8 +13,10 @@ const discountRoutes = require('./routes/discountRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const videoRoutes = require('./routes/videoRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
+const server = http.createServer(app);
 
 dotenv.config();
 connectDB();
@@ -41,6 +45,9 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
+// Set up Socket.IO
+socketSetup(server);
+
 // Define your routes
 app.use('/api/auth', authRoutes);  // Use the authRoutes for registration and login
 app.use('/api/product', productRoute);  // Use the productRoute for product-related operations, requiring JWT authentication
@@ -49,6 +56,7 @@ app.use('/api/seller/discounts', discountRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/seller/orders', orderRoutes);
 app.use('/api/seller/videos', videoRoutes);
+app.use('/api/chat', chatRoutes);
 // Example protected route
 app.get('/api/admin-data', authenticateJWT, (req, res) => {
   if (req.user.role === 'admin') {
@@ -61,6 +69,6 @@ app.get('/api/admin-data', authenticateJWT, (req, res) => {
 app.use('/uploads', express.static('uploads'));
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
