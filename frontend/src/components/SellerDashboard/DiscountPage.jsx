@@ -4,7 +4,8 @@ import {
   Typography, 
   useTheme,
   useMediaQuery,
-  Grid
+  Grid,
+  Pagination
 } from '@mui/material';
 import TopBar from './components/TopBar';
 import SideNav from './components/SideNav';
@@ -48,6 +49,7 @@ function DiscountPage() {
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     loadDiscounts();
@@ -64,39 +66,59 @@ function DiscountPage() {
   };
 
   // Filter discounts based on status
-  const filteredDiscounts = useMemo(() => {
+  const filteredAndSortedDiscounts = useMemo(() => {
     if (!Array.isArray(discounts)) return [];
     
-    let filtered = [...discounts];
-    const now = new Date();
-    
+    // First apply search filter
+    let filtered = discounts.filter(discount => {
+      const searchLower = search.toLowerCase();
+      return (
+        (discount.name?.toLowerCase() || '').includes(searchLower) ||
+        (discount.code?.toLowerCase() || '').includes(searchLower) ||
+        (discount.description?.toLowerCase() || '').includes(searchLower) ||
+        (discount.productId?.name?.toLowerCase() || '').includes(searchLower)
+      );
+    });
+
+    // Then apply status filter
     switch (filter) {
-      case 'Active':
+      case 'active':
         filtered = filtered.filter(discount => 
-          discount.status === 'Active'
+          new Date(discount.endDate) > new Date() && discount.status === 'Active'
         );
         break;
-      case 'Inactive':
+      case 'expired':
         filtered = filtered.filter(discount => 
-          discount.status === 'Inactive'
+          new Date(discount.endDate) <= new Date() || discount.status === 'Inactive'
         );
         break;
       default:
         break;
     }
-    return filtered;
-  }, [discounts, filter]);
 
-  // Sort filtered discounts
-  const sortedDiscounts = useMemo(() => {
-    return sortDiscounts(filteredDiscounts, sortBy);
-  }, [filteredDiscounts, sortBy]);
+    // Finally sort
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'highDiscount':
+          return (b.percentage || 0) - (a.percentage || 0);
+        case 'lowDiscount':
+          return (a.percentage || 0) - (b.percentage || 0);
+        case 'endingSoon':
+          return new Date(a.endDate) - new Date(b.endDate);
+        case 'newest':
+        default:
+          return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+    });
+  }, [discounts, filter, sortBy, search]);
 
   // Paginate sorted discounts
   const paginatedDiscounts = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
-    return sortedDiscounts.slice(start, start + ITEMS_PER_PAGE);
-  }, [sortedDiscounts, page]);
+    return filteredAndSortedDiscounts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredAndSortedDiscounts, page]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -142,6 +164,11 @@ function DiscountPage() {
 
   const refreshData = async () => {
     await loadDiscounts();
+  };
+
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setPage(1); // Reset to first page when sorting changes
   };
 
   return (
@@ -197,11 +224,13 @@ function DiscountPage() {
             mb: 3
           }}>
             <Typography variant="body2" color="textSecondary">
-              Showing {paginatedDiscounts.length} of {filteredDiscounts.length} discounts
+              Showing {paginatedDiscounts.length} of {filteredAndSortedDiscounts.length} discounts
             </Typography>
             <DiscountSort 
               sortBy={sortBy}
-              onSortChange={setSortBy}
+              onSortChange={handleSortChange}
+              search={search}
+              onSearchChange={setSearch}
             />
           </Box>
 
@@ -213,7 +242,7 @@ function DiscountPage() {
               onDeleteDiscount={handleDeleteDiscount}
               page={page}
               onPageChange={(_, newPage) => setPage(newPage)}
-              totalPages={Math.ceil(filteredDiscounts.length / ITEMS_PER_PAGE)}
+              totalPages={Math.ceil(filteredAndSortedDiscounts.length / ITEMS_PER_PAGE)}
             />
           </Box>
         </Box>

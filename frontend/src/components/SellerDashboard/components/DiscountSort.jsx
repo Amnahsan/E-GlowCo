@@ -1,29 +1,63 @@
 import React from 'react';
-import { FormControl, InputLabel, Select, MenuItem, Box } from '@mui/material';
+import {
+  Box,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  IconButton,
+  InputAdornment,
+  Grid
+} from '@mui/material';
+import { Search as SearchIcon } from '@mui/icons-material';
 
-const DiscountSort = ({ sortBy, onSortChange }) => {
+const DiscountSort = ({ sort, onSortChange, search, onSearchChange }) => {
+  const handleSearch = (event) => {
+    onSearchChange(event.target.value);
+  };
+
   return (
-    <Box sx={{ minWidth: 150 }}>
-      <FormControl size="small" fullWidth>
-        <InputLabel>Sort By</InputLabel>
-        <Select
-          value={sortBy}
-          label="Sort By"
-          onChange={(e) => onSortChange(e.target.value)}
-          sx={{
-            '& .MuiSelect-select': {
-              py: 1
-            }
-          }}
-        >
-          <MenuItem value="newest">Newest First</MenuItem>
-          <MenuItem value="oldest">Oldest First</MenuItem>
-          <MenuItem value="nameAsc">Name (A-Z)</MenuItem>
-          <MenuItem value="nameDesc">Name (Z-A)</MenuItem>
-          <MenuItem value="percentageAsc">Percentage (Low to High)</MenuItem>
-          <MenuItem value="percentageDesc">Percentage (High to Low)</MenuItem>
-        </Select>
-      </FormControl>
+    <Box className="mb-6">
+      <Grid container spacing={2} alignItems="center">
+        {/* Search Field */}
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            placeholder="Search discounts..."
+            value={search}
+            onChange={handleSearch}
+            size="small"
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton edge="end">
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Grid>
+
+        {/* Sort Field */}
+        <Grid item xs={12} md={6}>
+          <FormControl fullWidth size="small">
+            <InputLabel>Sort By</InputLabel>
+            <Select
+              value={sort}
+              label="Sort By"
+              onChange={(e) => onSortChange(e.target.value)}
+            >
+              <MenuItem value="newest">Newest First</MenuItem>
+              <MenuItem value="oldest">Oldest First</MenuItem>
+              <MenuItem value="highDiscount">Highest Discount</MenuItem>
+              <MenuItem value="lowDiscount">Lowest Discount</MenuItem>
+              <MenuItem value="endingSoon">Ending Soon</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

@@ -22,6 +22,7 @@ import OrdersPage from './components/SellerDashboard/OrdersPage';
 import ProductOrderPage from './components/customer/ProductOrderPage';
 import CustomerDashboard from './components/customer/CustomerDashboard';
 import OrderHistory from './components/customer/OrderHistory';
+import VideoManagement from './components/SellerDashboard/VideoManagement';
 
 
 // Global Styles
@@ -81,9 +82,38 @@ function App() {
             <Route path="/add-product" element={<ProductManagement />} />
 
             {/* Seller Routes */}
-            <Route path="/seller-dashboard" element={<Dashboard />} />
-            <Route path="/seller-dashboard/products" element={<Products />} />
-            <Route path="/seller-dashboard/discounts" element={<DiscountPage />} />
+            <Route 
+              path="/seller-dashboard" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <Dashboard />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/seller-dashboard/products" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <Products />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/seller-dashboard/discounts" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <DiscountPage />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/seller-dashboard/videos" 
+              element={
+                <PrivateRoute allowedRoles={['seller']}>
+                  <VideoManagement />
+                </PrivateRoute>
+              } 
+            />
 
             {/* Customer Routes */}
             <Route 

@@ -57,6 +57,7 @@ function ProductsPage() {
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
   const ITEMS_PER_PAGE = 10;
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     fetchStats();
@@ -83,10 +84,20 @@ function ProductsPage() {
   };
 
   // Filter products based on status
-  const filteredProducts = useMemo(() => {
+  const filteredAndSortedProducts = useMemo(() => {
     if (!Array.isArray(products)) return [];
     
-    let filtered = [...products];
+    // First apply search filter
+    let filtered = products.filter(product => {
+      const searchLower = search.toLowerCase();
+      return (
+        product.name.toLowerCase().includes(searchLower) ||
+        product.description.toLowerCase().includes(searchLower) ||
+        product.category.toLowerCase().includes(searchLower)
+      );
+    });
+
+    // Then apply status filter
     switch (filter) {
       case 'active':
         filtered = filtered.filter(product => product.status === 'Active');
@@ -97,19 +108,32 @@ function ProductsPage() {
       default:
         break;
     }
-    return filtered;
-  }, [products, filter]);
 
-  // Sort filtered products
-  const sortedProducts = useMemo(() => {
-    return sortProducts(filteredProducts, sortBy);
-  }, [filteredProducts, sortBy]);
+    // Finally sort
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'oldest':
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        case 'priceHigh':
+          return b.price - a.price;
+        case 'priceLow':
+          return a.price - b.price;
+        case 'nameAZ':
+          return a.name.localeCompare(b.name);
+        case 'nameZA':
+          return b.name.localeCompare(a.name);
+        case 'newest':
+        default:
+          return new Date(b.createdAt) - new Date(a.createdAt);
+      }
+    });
+  }, [products, filter, sortBy, search]); // Add search to dependencies
 
   // Paginate sorted products
   const paginatedProducts = useMemo(() => {
     const start = (page - 1) * ITEMS_PER_PAGE;
-    return sortedProducts.slice(start, start + ITEMS_PER_PAGE);
-  }, [sortedProducts, page]);
+    return filteredAndSortedProducts.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredAndSortedProducts, page, ITEMS_PER_PAGE]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -211,11 +235,13 @@ function ProductsPage() {
               <Grid item>
                 <Box className="flex justify-between gap-4">
                   <Typography variant="body2" color="textSecondary">
-                    Showing {paginatedProducts.length} of {filteredProducts.length} products
+                    Showing {paginatedProducts.length} of {filteredAndSortedProducts.length} products
                   </Typography>
                   <ProductSort 
                     sortBy={sortBy}
                     onSortChange={handleSortChange}
+                    search={search}
+                    onSearchChange={setSearch}
                   />
                 </Box>
               </Grid>
@@ -233,7 +259,7 @@ function ProductsPage() {
             filter={filter}
             page={page}
             onPageChange={(_, newPage) => setPage(newPage)}
-            totalPages={Math.ceil(filteredProducts.length / ITEMS_PER_PAGE)}
+            totalPages={Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE)}
             onRefresh={() => setRefreshList(prev => !prev)}
           />
         </Box>

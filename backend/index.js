@@ -10,6 +10,7 @@ const product = require('./routes/productRoutes');
 const discountRoutes = require('./routes/discountRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const videoRoutes = require('./routes/videoRoutes');
 
 const app = express();
 
@@ -47,7 +48,7 @@ app.use('/api/seller/products', product);
 app.use('/api/seller/discounts', discountRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/seller/orders', orderRoutes);
-
+app.use('/api/seller/videos', videoRoutes);
 // Example protected route
 app.get('/api/admin-data', authenticateJWT, (req, res) => {
   if (req.user.role === 'admin') {
