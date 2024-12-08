@@ -88,6 +88,7 @@ const AboutBrand = () => {
                   variant="contained"
                   size="large"
                   className="bg-primary-600 hover:bg-primary-700"
+                  
                 >
                   Learn More About Us
                 </Button>

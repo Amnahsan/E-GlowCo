@@ -184,7 +184,7 @@ const SocialFeed = () => {
               variant="outlined"
               startIcon={<InstagramIcon />}
               className="border-primary-600 text-primary-600 hover:bg-primary-50"
-              href="https://instagram.com/sameglowco"
+              href="https://www.instagram.com/sam_e_glowco/profilecard/?igsh=MW9xZHFta2oxanFocA%3D%3D"
               target="_blank"
             >
               Follow Us on Instagram
