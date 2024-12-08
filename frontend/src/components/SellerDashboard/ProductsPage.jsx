@@ -56,7 +56,7 @@ function ProductsPage() {
   const [filter, setFilter] = useState('all');
   const [page, setPage] = useState(1);
   const [products, setProducts] = useState([]);
-  const ITEMS_PER_PAGE = 10;
+  const ITEMS_PER_PAGE = 5;
   const [search, setSearch] = useState('');
 
   useEffect(() => {
@@ -189,14 +189,21 @@ function ProductsPage() {
           width: { sm: `calc(100% - 240px)` },
           ml: { sm: '40px' },
           mt: { xs: '56px', sm: '64px' },
+          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
           display: 'flex',
           flexDirection: 'column',
-          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
-          bgcolor: 'background.default'
+          bgcolor: 'background.default',
+          overflow: 'auto'
         }}
       >
-        {/* Header */}
-        <Box sx={{ px: 2, pt: 2, pb: 1 }}>
+        {/* Header - Static content */}
+        <Box 
+          sx={{ 
+            p: 2,
+            flexShrink: 0,
+            bgcolor: 'background.default'
+          }}
+        >
           <Box sx={{ 
             display: 'flex', 
             flexDirection: { xs: 'column', sm: 'row' },
@@ -249,19 +256,33 @@ function ProductsPage() {
           </Box>
         </Box>
         
-        {/* Product List */}
-        <Box sx={{ px: 2, flexGrow: 1, overflow: 'auto', bgcolor: 'background.paper' }}>
-          <ProductList 
-            products={paginatedProducts} 
-            refreshTrigger={refreshList} 
-            onEditProduct={handleEditProduct}
-            sortBy={sortBy}
-            filter={filter}
-            page={page}
-            onPageChange={(_, newPage) => setPage(newPage)}
-            totalPages={Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE)}
-            onRefresh={() => setRefreshList(prev => !prev)}
-          />
+        {/* Content area - without scroll */}
+        <Box 
+          sx={{ 
+            px: 2,
+            pb: 2
+          }}
+        >
+          {/* Product List */}
+          <Box 
+            sx={{ 
+              bgcolor: 'background.paper',
+              borderRadius: 1,
+              boxShadow: 1
+            }}
+          >
+            <ProductList 
+              products={paginatedProducts} 
+              refreshTrigger={refreshList} 
+              onEditProduct={handleEditProduct}
+              sortBy={sortBy}
+              filter={filter}
+              page={page}
+              onPageChange={(_, newPage) => setPage(newPage)}
+              totalPages={Math.ceil(filteredAndSortedProducts.length / ITEMS_PER_PAGE)}
+              onRefresh={() => setRefreshList(prev => !prev)}
+            />
+          </Box>
         </Box>
 
         <ProductForm

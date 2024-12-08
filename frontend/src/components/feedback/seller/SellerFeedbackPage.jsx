@@ -103,172 +103,118 @@ const SellerFeedbackPage = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-
-      {/* Side Navigation */}
-      <Box
-        component="nav"
-        sx={{ width: { md: drawerWidth }, flexShrink: { md: 0 } }}
+      <TopBar onMobileMenuToggle={handleDrawerToggle} />
+      <SideNav 
+        mobileOpen={mobileOpen} 
+        onMobileClose={handleDrawerToggle}
+      />
+      
+      {/* Main content */}
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1,
+          width: { sm: `calc(100% - 240px)` },
+          ml: { sm: '40px' },
+          mt: { xs: '56px', sm: '64px' },
+          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
+          display: 'flex',
+          flexDirection: 'column',
+          bgcolor: 'background.default',
+          overflow: 'auto',
+          overflowX: 'hidden'
+        }}
       >
-        {/* Mobile drawer */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth 
-            },
-          }}
-        >
-          <Toolbar />
-          <SideNav mobileOpen={mobileOpen} onMobileClose={handleDrawerToggle} />
-        </Drawer>
-
-        {/* Desktop drawer */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: drawerWidth 
-            },
-          }}
-          open
-        >
-          <Toolbar />
-          <SideNav mobileOpen={false} />
-        </Drawer>
-      </Box>
-
-      {/* Main Content */}
-      <Box className="flex-grow">
-        {/* Top Bar */}
-        <TopBar onMenuClick={handleDrawerToggle}>
+        <Box sx={{ 
+          p: { xs: 2, sm: 3 },
+          flexShrink: 0
+        }}>
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
           >
-            <Typography variant="h6" className="text-gray-700">
-              Feedback Management
-            </Typography>
-          </motion.div>
-        </TopBar>
-
-        {/* Page Content */}
-        <Box className="p-6 pt-20">
-          <Container maxWidth="lg">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-            >
-              <AnimatePresence mode="wait">
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Alert 
-                      severity="error" 
-                      onClose={() => setError('')}
-                      className="mb-4"
-                    >
-                      {error}
-                    </Alert>
-                  </motion.div>
-                )}
-
-                {/* Stats Section */}
+            <AnimatePresence mode="wait">
+              {error && (
                 <motion.div
-                  variants={itemVariants}
-                  className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
-                >
-                  <FeedbackStats stats={stats} />
-                </motion.div>
-
-                {/* Tabs Section */}
-                <motion.div variants={itemVariants}>
-                  <Paper className="mb-6">
-                    <Tabs
-                      value={tabValue}
-                      onChange={(_, newValue) => setTabValue(newValue)}
-                      className="border-b border-gray-200"
-                    >
-                      <Tab 
-                        label={
-                          <motion.span
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            All Feedbacks
-                          </motion.span>
-                        }
-                      />
-                      <Tab 
-                        label={
-                          <motion.span
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            Pending
-                          </motion.span>
-                        }
-                      />
-                      <Tab 
-                        label={
-                          <motion.span
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            Responded
-                          </motion.span>
-                        }
-                      />
-                    </Tabs>
-                  </Paper>
-                </motion.div>
-
-                {/* Feedback List Section */}
-                <motion.div
-                  variants={itemVariants}
-                  layout
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.3 }}
                 >
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={tabValue}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      <SellerFeedbackList
-                        feedbacks={feedbacks.filter(feedback => {
-                          if (tabValue === 1) return feedback.status === 'pending';
-                          if (tabValue === 2) return feedback.status === 'responded';
-                          return true;
-                        })}
-                        onRefresh={fetchFeedbacks}
-                      />
-                    </motion.div>
-                  </AnimatePresence>
+                  <Alert 
+                    severity="error" 
+                    onClose={() => setError('')}
+                    className="mb-4"
+                  >
+                    {error}
+                  </Alert>
                 </motion.div>
-              </AnimatePresence>
-            </motion.div>
-          </Container>
+              )}
+
+              {/* Stats Section */}
+              <motion.div
+                variants={itemVariants}
+                className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8"
+              >
+                <FeedbackStats stats={stats} />
+              </motion.div>
+
+              {/* Tabs Section */}
+              <motion.div variants={itemVariants}>
+                <Paper className="mb-6">
+                  <Tabs
+                    value={tabValue}
+                    onChange={(_, newValue) => setTabValue(newValue)}
+                    className="border-b border-gray-200"
+                  >
+                    <Tab 
+                      label={
+                        <motion.span
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          All Feedbacks
+                        </motion.span>
+                      }
+                    />
+                    <Tab 
+                      label={
+                        <motion.span
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Pending
+                        </motion.span>
+                      }
+                    />
+                    <Tab 
+                      label={
+                        <motion.span
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          Responded
+                        </motion.span>
+                      }
+                    />
+                  </Tabs>
+                </Paper>
+              </motion.div>
+
+              {/* Feedback List Section */}
+              <motion.div variants={itemVariants}>
+                <SellerFeedbackList
+                  feedbacks={feedbacks.filter(feedback => {
+                    if (tabValue === 1) return feedback.status === 'pending';
+                    if (tabValue === 2) return feedback.status === 'responded';
+                    return true;
+                  })}
+                  onRefresh={fetchFeedbacks}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </Box>
       </Box>
     </Box>

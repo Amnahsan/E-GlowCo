@@ -186,15 +186,20 @@ function DiscountPage() {
           width: { sm: `calc(100% - 240px)` },
           ml: { sm: '40px' },
           mt: { xs: '56px', sm: '64px' },
+          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
           display: 'flex',
           flexDirection: 'column',
-          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
-          bgcolor: 'background.default'
+          bgcolor: 'background.default',
+          overflow: 'auto',
+          overflowX: 'hidden'  // Prevent horizontal scroll
         }}
       >
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ 
+          p: { xs: 2, sm: 3 },  // Responsive padding
+          flexShrink: 0  // Prevent shrinking
+        }}>
           {/* Create Discount Button */}
-          <Box sx={{ mb: 3 }}>
+          <Box sx={{ mb: 2 }}>
             <AddButton
               onClick={handleOpenForm}
               label="CREATE DISCOUNT"
@@ -221,7 +226,9 @@ function DiscountPage() {
             display: 'flex', 
             justifyContent: 'space-between',
             alignItems: 'center',
-            mb: 3
+            mb: 2,
+            flexDirection: { xs: 'column', sm: 'row' },  // Stack on mobile
+            gap: 2
           }}>
             <Typography variant="body2" color="textSecondary">
               Showing {paginatedDiscounts.length} of {filteredAndSortedDiscounts.length} discounts
@@ -234,8 +241,11 @@ function DiscountPage() {
             />
           </Box>
 
-          {/* Discount List */}
-          <Box sx={{ flexGrow: 1 }}>
+          {/* Discount List Container */}
+          <Box sx={{ 
+            width: '100%',
+            minHeight: 0
+          }}>
             <DiscountList 
               discounts={paginatedDiscounts}
               onEditDiscount={handleEditDiscount}

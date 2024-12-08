@@ -113,13 +113,18 @@ function OrdersPage() {
           width: { sm: `calc(100% - 240px)` },
           ml: { sm: '40px' },
           mt: { xs: '56px', sm: '64px' },
+          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
           display: 'flex',
           flexDirection: 'column',
-          height: { xs: 'calc(100vh - 56px)', sm: 'calc(100vh - 64px)' },
-          bgcolor: 'background.default'
+          bgcolor: 'background.default',
+          overflow: 'auto',
+          overflowX: 'hidden'
         }}
       >
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ 
+          p: { xs: 2, sm: 3 },
+          flexShrink: 0
+        }}>
           <Typography 
             variant={isMobile ? "h5" : "h4"} 
             component="h1"
@@ -129,12 +134,20 @@ function OrdersPage() {
           </Typography>
 
           {/* Stats Section */}
-          <Box className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Box sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(4, 1fr)'
+            },
+            gap: 2,
+            mb: 3
+          }}>
             {stats && <OrderStats stats={stats} />}
           </Box>
 
           {/* Filter and Sort Controls */}
-          <Box className="mb-4">
+          <Box sx={{ mb: 2 }}>
             <Grid container direction="column" spacing={2}>
               <Grid item>
                 <OrderFilter 
@@ -143,7 +156,12 @@ function OrdersPage() {
                 />
               </Grid>
               <Grid item>
-                <Box className="flex justify-between gap-4">
+                <Box sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: 2
+                }}>
                   <Typography variant="body2" color="textSecondary">
                     Showing {paginatedOrders.length} of {filteredOrders.length} orders
                   </Typography>
@@ -155,8 +173,16 @@ function OrdersPage() {
               </Grid>
             </Grid>
           </Box>
+        </Box>
 
-          {/* Order List */}
+        {/* Order List Container */}
+        <Box sx={{ 
+          px: { xs: 2, sm: 3 },
+          pb: { xs: 2, sm: 3 },
+          flex: 1,
+          minHeight: 0,
+          width: '100%'
+        }}>
           <OrderList 
             orders={paginatedOrders}
             onUpdateStatus={(order) => {
